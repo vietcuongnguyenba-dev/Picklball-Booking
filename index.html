@@ -6,8 +6,6 @@
     <title>Đặt Sân Pickleball Công Ty</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4">
     <div class="max-w-4xl mx-auto space-y-6">
@@ -31,6 +29,11 @@
             <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-600 rounded"></span> Có thể ghép (&lt;8 người)</div>
             <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-600 rounded"></span> Đã đầy (Đủ 8 người)</div>
             <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-blue-600 rounded"></span> Ca của bạn</div>
+        </div>
+
+        <!-- Trạng thái tải -->
+        <div id="loading-status" class="text-center text-xs text-amber-400 font-medium hidden">
+            ⏳ Đang đồng bộ dữ liệu...
         </div>
 
         <!-- Lịch đặt sân (7 ngày tới) -->
@@ -63,15 +66,7 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://ygatwoqviauuvetqlkbh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnYXR3b3F2aWF1dXZldHFsa2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5ODMzMTIsImV4cCI6MjEwODU1OTMxMn0.vRMV3pHCGeWnVUHkHsWU9DDi5_w-UmXDMfoWDC-VLzI';
-        
-        let supabaseClient;
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            alert('Lỗi khởi tạo Supabase client: ' + e.message);
-        }
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxao0YBNUpciNO0gWtRwC96d1zraAV1XOiwko7794cbONVHYaX4mVWBSJaVOdqnGvni8A/exec'; 
 
         const DEFAULT_ADMIN_PIN = '15102026';
 
@@ -107,20 +102,24 @@
             renderSchedule();
         }
 
+        function showLoading(show) {
+            const el = document.getElementById('loading-status');
+            if(show) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+
         async function fetchBookings() {
-            const { data, error } = await supabaseClient.from('bookings').select('*');
-            if (error) {
-                alert('Lỗi kết nối cơ sở dữ liệu: ' + error.message);
-                console.error(error);
-                return;
+            showLoading(true);
+            try {
+                const response = await fetch(SCRIPT_URL);
+                if (!response.ok) throw new Error('Lỗi truy cập dữ liệu');
+                bookingsData = await response.json();
+                renderSchedule();
+            } catch (e) {
+                alert('Không thể kết nối Google Sheets: ' + e.message);
+            } finally {
+                showLoading(false);
             }
-            if(data) {
-                bookingsData = {};
-                data.forEach(row => {
-                    bookingsData[row.slot_key] = row.players;
-                });
-            }
-            renderSchedule();
         }
 
         function renderSchedule() {
@@ -209,14 +208,23 @@
                 players.push({ name, card });
             }
 
-            const { error } = await supabaseClient
-                .from('bookings')
-                .upsert({ slot_key: slotKey, date: date, session: sessionId, players: players }, { onConflict: 'slot_key' });
+            showLoading(true);
 
-            if (error) {
-                alert('Lỗi cập nhật: ' + error.message);
-            } else {
-                fetchBookings();
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slot_key: slotKey, players: players })
+                });
+
+                bookingsData[slotKey] = players;
+                renderSchedule();
+                
+                setTimeout(fetchBookings, 1000);
+            } catch (e) {
+                alert('Lỗi khi gửi dữ liệu: ' + e.message);
+                showLoading(false);
             }
         }
 
@@ -238,13 +246,21 @@
         }
 
         async function clearAllBookings() {
-            if(confirm('CẢNH BÁO: Thao tác này sẽ xóa toàn bộ lịch đặt sân. Tiếp tục?')) {
-                const { error } = await supabaseClient.from('bookings').delete().neq('id', 0);
-                if(error) {
-                    alert('Lỗi khi xóa: ' + error.message);
-                } else {
-                    alert('Đã làm sạch toàn bộ lịch!');
-                    fetchBookings();
+            if(confirm('CẢNH BÁO: Thao tác này sẽ xóa toàn bộ lịch đặt sân trên Google Sheets. Tiếp tục?')) {
+                showLoading(true);
+                try {
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'clear_all' })
+                    });
+
+                    alert('Đã gửi yêu cầu làm sạch toàn bộ lịch!');
+                    setTimeout(fetchBookings, 1000);
+                } catch (e) {
+                    alert('Lỗi khi xóa: ' + e.message);
+                    showLoading(false);
                 }
             }
         }
