@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Đặt sân Pickleball</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1a1d21;--muted:#6b7280;--line:#e3e6ea;--ok:#e6f6ec;--okb:#2e9d57;--bad:#fde8e8;--badb:#d93636;--me:#e5efff;--meb:#2f6fe0;--off:#eceef1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--card:#1d2026;--text:#eceef1;--muted:#98a0ab;--line:#2d3138;--ok:#16301f;--okb:#3fbf72;--bad:#3a1c1c;--badb:#ef5b5b;--me:#17294d;--meb:#6a9bff;--off:#262a31;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:13px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}
+button{font:inherit;cursor:pointer}
+.btn{padding:9px 14px;border-radius:8px;border:0;background:var(--meb);color:#fff;font-weight:600}
+.btn.ghost{background:var(--off);color:var(--text)}
+.btn.danger{background:var(--badb)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1.5px solid}
+.day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.day h3{margin:0 0 8px;font-size:15px}
+.day h3 span{color:var(--muted);font-weight:400;font-size:13px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:560px){.slots{grid-template-columns:1fr}}
+.slot{border:1.5px solid;border-radius:10px;padding:9px 10px;text-align:left;min-height:68px;color:var(--text)}
+.slot b{display:block;font-size:13px}
+.slot small{display:block;color:var(--muted);font-size:12px}
+.slot .who{margin-top:3px;font-size:13px;font-weight:600;overflow-wrap:anywhere}
+.slot.free{background:var(--ok);border-color:var(--okb)}
+.slot.taken{background:var(--bad);border-color:var(--badb);cursor:default}
+.slot.mine{background:var(--me);border-color:var(--meb);cursor:pointer}
+.slot.past{background:var(--off);border-color:var(--line);opacity:.6;cursor:not-allowed}
+.slot.taken.joinable{cursor:pointer}
+.slot .cnt{font-weight:600;color:var(--text)}
+.slot .tap{color:var(--badb);font-weight:600;margin-top:2px}
+select{width:100%;margin-top:6px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}
+.slot.block{background:rgba(124,77,204,.15);border-color:#8a5cd6;cursor:not-allowed}
+.note{display:flex;gap:8px;align-items:center;justify-content:space-between;background:rgba(124,77,204,.12);border:1px solid #8a5cd6;border-radius:10px;padding:9px 12px;margin-bottom:8px;font-size:14px}
+.note button{border:0;background:var(--off);color:var(--text);border-radius:6px;padding:5px 9px;flex:none}
+.chip{display:inline-flex;gap:4px;align-items:center;background:var(--off);border-radius:999px;padding:3px 6px 3px 10px;margin:0 6px 6px 0;font-size:13px}
+.chip button{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;padding:0 4px}
+.brow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14px}
+.adm h4{margin:12px 0 6px;font-size:14px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#222;color:#fff;padding:10px 16px;border-radius:10px;max-width:90vw;display:none;z-index:20;font-size:14px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
+#modal .m{background:var(--card);border-radius:14px;padding:18px;max-width:380px;width:100%}
+#modal p{margin:0 0 14px}
+.rules{font-size:13px;color:var(--muted);margin:0;padding-left:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>🏓 Đặt sân Pickleball</h1>
+<p class="sub">Xanh = còn trống · Đỏ = đã có người đặt · Xanh dương = của bạn</p>
+
+<div id="notice"></div>
+
+<div class="box">
+  <div class="row">
+    <input id="name" placeholder="Họ và tên" autocomplete="name">
+    <input id="card" placeholder="Số thẻ nhân viên" inputmode="text">
+    <button class="btn" id="save">Lưu</button>
+  </div>
+  <ul class="rules" style="margin-top:10px">
+    <li>Đặt trước tối đa 7 ngày.</li>
+    <li>Cùng 1 khung giờ, tối đa 3 ngày/tuần (tuần tính từ thứ Hai).</li>
+    <li>Cần đủ 4 người để chơi, tối đa 12 người/khung. Nhóm thiếu người thì ai cũng có thể bấm vào ô đỏ đó để tham gia.</li>
+    <li>Bấm vào ô của bạn (màu xanh dương) để hủy hoặc rút khỏi nhóm, trước giờ bắt đầu.</li>
+  </ul>
+</div>
+
+<div class="box adm" id="admin">
+  <button class="btn ghost" id="atoggle" style="width:100%;text-align:left">🔧 Quản trị ▸</button>
+  <div id="abody" style="display:none">
+  <div id="alogin"><div class="row"><input id="lcard" placeholder="Thẻ admin"><input id="pin" type="password" inputmode="numeric" placeholder="PIN admin"><button class="btn" id="unl">Đăng nhập</button></div>
+  <div id="aboot" style="display:none;margin-top:10px"><p class="sub" style="margin:0 0 6px">Thiết lập lần đầu (chỉ chủ link thấy, khi chưa có PIN hoặc thẻ admin)</p><div class="row"><input id="bcard" placeholder="Thẻ admin đầu tiên"><input id="bpin" type="password" inputmode="numeric" placeholder="PIN mới (4–8 số)"><button class="btn" id="bset">Thiết lập</button></div></div></div>
+  <div id="afull" style="display:none">
+  <div id="pinset" style="display:none"><h4>Mã PIN admin</h4><div class="row"><input id="newpin" type="password" inputmode="numeric" placeholder="PIN mới (4–8 số)"><button class="btn" id="setpin">Đặt PIN</button></div><p class="sub" id="pinstate" style="margin:6px 0 0"></p></div>
+  <h4>Thẻ admin</h4>
+  <div id="alist"></div>
+  <div class="row"><input id="acard" placeholder="Số thẻ admin mới"><button class="btn" id="aadd">Thêm</button></div>
+  <h4>Tạm ngưng đặt sân (tổ chức giải)</h4>
+  <div class="row"><input id="bname" placeholder="Tên giải (hiện cho mọi người)"></div>
+  <div class="row" style="margin-top:8px"><input id="bfrom" type="date"><input id="bto" type="date"><button class="btn" id="badd">Ngưng đặt sân</button></div>
+  <div id="blist" style="margin-top:8px"></div>
+  <h4>Dọn dữ liệu</h4>
+  <div class="row"><button class="btn ghost" id="clean">Dọn dữ liệu cũ ngay</button></div>
+  <p class="sub" style="margin:6px 0 0">Tự động dọn mỗi 30 ngày (khi có người mở app), chỉ giữ lại 3 ngày đã qua gần nhất.</p>
+  </div></div>
+</div>
+
+<div class="legend">
+  <span><i style="background:var(--ok);border-color:var(--okb)"></i>Trống</span>
+  <span><i style="background:var(--bad);border-color:var(--badb)"></i>Đã đặt</span>
+  <span><i style="background:var(--me);border-color:var(--meb)"></i>Của bạn</span>
+  <span><i style="background:var(--off);border-color:var(--line)"></i>Đã qua</span>
+  <span><i style="background:rgba(124,77,204,.15);border-color:#8a5cd6"></i>Giải đấu</span>
+</div>
+
+<div id="days"><p class="sub">Đang tải...</p></div>
+</main>
+<div id="toast"></div>
+<div id="modal"><div class="m"><p id="mtext"></p><div id="mextra" style="display:none;margin:0 0 14px"><label style="font-size:13px;color:var(--muted)">Số người trong nhóm của bạn (tính cả bạn)</label><select id="msize"></select></div><div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mno">Đóng</button><button class="btn" id="myes">Xác nhận</button></div></div></div>
+
+<script>
+const SLOTS=[
+ {id:'sang',label:'Buổi sáng',time:'5h00 – 7h30',h:5,m:0},
+ {id:'chieu1',label:'Chiều 1',time:'16h30 – 18h30',h:16,m:30},
+ {id:'chieu2',label:'Chiều 2',time:'18h30 – 21h00',h:18,m:30}
+];
+const DOW=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+const $=id=>document.getElementById(id);
+let me={name:'',card:''}, bookings={}, joins={}, col=null, jcol=null, acol=null, bcol=null, ncol=null, admins={}, blocks={}, notices={}, ownerFlag=false, unlocked=false, pinCfg=null, cfg=null, busy=false;
+(()=>{const s=$('msize');for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=i+' người';s.appendChild(o)}s.value=4})();
+
+try{const s=JSON.parse(localStorage.getItem('pb_me')||'null'); if(s&&s.card){me=s;}}catch(e){}
+$('name').value=me.name; $('card').value=me.card;
+
+const pad=n=>String(n).padStart(2,'0');
+const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+function weekKey(k){const d=parse(k);const off=(d.getDay()+6)%7;d.setDate(d.getDate()-off);return key(d)}
+function startOf(k,s){const d=parse(k);d.setHours(s.h,s.m,0,0);return d}
+const norm=c=>String(c||'').trim().toUpperCase();
+
+let tt;function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',3500)}
+function ask(text,yesLabel,cb,withSize){$('mtext').textContent=text;$('myes').textContent=yesLabel;$('myes').className='btn'+(/Hủy|Rút/.test(yesLabel)?' danger':'');$('mextra').style.display=withSize?'block':'none';$('modal').style.display='flex';
+ $('myes').onclick=()=>{$('modal').style.display='none';cb(Number($('msize').value)||1)};$('mno').onclick=()=>$('modal').style.display='none'}
+
+$('save').onclick=()=>{
+ const n=$('name').value.trim(),c=$('card').value.trim();
+ if(!n||!c){toast('Nhập đủ họ tên và số thẻ nhé');return}
+ me={name:n,card:c};
+ try{localStorage.setItem('pb_me',JSON.stringify(me))}catch(e){}
+ toast('Đã lưu thông tin'); render();
+};
+
+function render(){
+ const now=new Date(), root=$('days'); root.textContent='';
+ const mc=norm(me.card);
+ for(let i=0;i<=7;i++){
+  const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i), k=key(d);
+  const day=document.createElement('div');day.className='day';
+  const h=document.createElement('h3');
+  h.textContent=(i===0?'Hôm nay · ':i===1?'Ngày mai · ':'')+DOW[d.getDay()]+' ';
+  const sp=document.createElement('span');sp.textContent=pad(d.getDate())+'/'+pad(d.getMonth()+1);h.appendChild(sp);day.appendChild(h);
+  const g=document.createElement('div');g.className='slots';
+  SLOTS.forEach(s=>{
+   const b=bookings[k+'_'+s.id], past=startOf(k,s)<=now, blk=blockOf(k);
+   const el=document.createElement('button');
+   const t=document.createElement('b');t.textContent=s.label;
+   const tm=document.createElement('small');tm.textContent=s.time;
+   el.append(t,tm);
+   if(blk){el.className='slot block';el.disabled=true;const w=document.createElement('div');w.className='who';w.textContent='🏆 '+(blk.name||'Giải đấu');el.appendChild(w)}
+   else if(b){
+    const js=joinsOf(k,s.id), total=(b.size||1)+js.length;
+    const isHost=mc&&norm(b.card)===mc, myJoin=mc&&js.find(j=>norm(j.card)===mc), mine=isHost||myJoin;
+    el.className='slot '+(mine?'mine':past?'past':'taken');
+    const w=document.createElement('div');w.className='who';w.textContent=b.name+' · '+b.card;el.appendChild(w);
+    const c=document.createElement('small');c.className='cnt';
+    c.textContent=total+'/12 người'+(total<4?' · thiếu '+(4-total)+' người để đủ bộ':total>=12?' · đã đầy':'');
+    el.appendChild(c);
+    if(js.length){const l=document.createElement('small');l.textContent='+ '+js.map(j=>j.name+' ('+j.card+')').join(', ');el.appendChild(l)}
+    if(!past){
+     if(isHost) el.onclick=()=>cancel(k,s,b);
+     else if(myJoin) el.onclick=()=>leave(k,s);
+     else if(total<12){el.classList.add('joinable');const t2=document.createElement('small');t2.className='tap';t2.textContent='Bấm để tham gia';el.appendChild(t2);el.onclick=()=>join(k,s,b)}
+    }else el.disabled=true;
+   }else if(past){
+    el.className='slot past';el.disabled=true;
+    const w=document.createElement('div');w.className='who';w.textContent='Đã qua';el.appendChild(w);
+   }else{
+    el.className='slot free';
+    const w=document.createElement('div');w.className='who';w.textContent='Còn trống';el.appendChild(w);
+    el.onclick=()=>book(k,s);
+   }
+   g.appendChild(el);
+  });
+  day.appendChild(g);root.appendChild(day);
+ }
+ renderNotices();renderAdmin();
+}
+
+async function book(k,s){
+ if(!col){toast('Chưa kết nối được dữ liệu, thử tải lại trang');return}
+ if(!me.name||!me.card){toast('Nhập họ tên và số thẻ ở trên rồi bấm Lưu trước nhé');window.scrollTo({top:0,behavior:'smooth'});return}
+ if(blockOf(k)){toast('Ngày này sân dùng cho giải đấu');return}
+ const mc=norm(me.card), wk=weekKey(k);
+ const n=Object.values(bookings).filter(b=>norm(b.card)===mc&&b.slot===s.id&&weekKey(b.date)===wk).length;
+ if(n>=3){toast('Bạn đã đặt đủ 3 ngày cho khung "'+s.label+'" trong tuần này');return}
+ const dd=parse(k);
+ ask('Đặt sân '+DOW[dd.getDay()]+' '+pad(dd.getDate())+'/'+pad(dd.getMonth()+1)+', '+s.label+' ('+s.time+')?','Xác nhận',async(size)=>{
+  if(busy)return;busy=true;
+  try{
+   const ref=col.doc(k+'_'+s.id), snap=await ref.get();
+   if(snap.exists){toast('Rất tiếc, vừa có người đặt khung này rồi');return}
+   await ref.set({date:k,slot:s.id,name:me.name,card:me.card,size:size,at:Date.now()});
+   toast('Đặt sân thành công ✔');
+  }catch(e){toast('Không đặt được: '+((e&&e.message)||'lỗi không rõ'))}
+  finally{busy=false}
+ },true);
+}
+
+function cancel(k,s,b){
+ if(startOf(k,s)<=new Date()){toast('Đã quá giờ, không hủy được');return}
+ ask('Hủy đặt sân '+s.label+' ('+s.time+') ngày '+pad(parse(k).getDate())+'/'+pad(parse(k).getMonth()+1)+'?','Hủy đặt sân',async()=>{
+  if(busy)return;busy=true;
+  try{await Promise.all((jcol?joinsOf(k,s.id):[]).map(j=>jcol.doc(j.id).delete()));await col.doc(k+'_'+s.id).delete();toast('Đã hủy đặt sân')}
+  catch(e){toast('Không hủy được: '+((e&&e.message)||'lỗi không rõ'))}
+  finally{busy=false}
+ });
+}
+
+function joinsOf(k,sid){return Object.entries(joins).filter(([id,v])=>v.date===k&&v.slot===sid).map(([id,v])=>({...v,id})).sort((a,b)=>a.at-b.at)}
+function jid(k,sid){return k+'_'+sid+'_'+(norm(me.card).replace(/[^A-Z0-9]/g,'')||'X')}
+
+function join(k,s,b){
+ if(!jcol){toast('Chưa kết nối được dữ liệu, thử tải lại trang');return}
+ if(!me.name||!me.card){toast('Nhập họ tên và số thẻ ở trên rồi bấm Lưu trước nhé');window.scrollTo({top:0,behavior:'smooth'});return}
+ const total=(b.size||1)+joinsOf(k,s.id).length;
+ ask('Tham gia nhóm của '+b.name+' ('+s.label+', '+s.time+')? Hiện có '+total+'/12 người.','Tham gia',async()=>{
+  if(busy)return;busy=true;
+  try{
+   const bk=bookings[k+'_'+s.id];
+   if(!bk){toast('Khung này không còn nữa');return}
+   if((bk.size||1)+joinsOf(k,s.id).length>=12){toast('Khung này đã đủ 12 người');return}
+   await jcol.doc(jid(k,s.id)).set({date:k,slot:s.id,name:me.name,card:me.card,at:Date.now()});
+   toast('Đã tham gia ✔');
+  }catch(e){toast('Không tham gia được: '+((e&&e.message)||'lỗi không rõ'))}
+  finally{busy=false}
+ });
+}
+
+function leave(k,s){
+ if(startOf(k,s)<=new Date()){toast('Đã quá giờ, không rút được');return}
+ ask('Rút khỏi nhóm '+s.label+' ('+s.time+')?','Rút khỏi nhóm',async()=>{
+  if(busy)return;busy=true;
+  try{await jcol.doc(jid(k,s.id)).delete();toast('Đã rút khỏi nhóm')}
+  catch(e){toast('Không rút được: '+((e&&e.message)||'lỗi không rõ'))}
+  finally{busy=false}
+ });
+}
+
+const cardId=c=>norm(c).replace(/[^A-Z0-9]/g,'')||'X';
+function blockOf(k){return Object.values(blocks).find(b=>k>=b.from&&k<=b.to)}
+function isAdmin(){return unlocked}
+function fmt(k){const d=parse(k);return pad(d.getDate())+'/'+pad(d.getMonth()+1)}
+function noteEl(text,onDismiss){const d=document.createElement('div');d.className='note';const s=document.createElement('span');s.textContent=text;d.appendChild(s);if(onDismiss){const b=document.createElement('button');b.textContent='Đã xem';b.onclick=onDismiss;d.appendChild(b)}return d}
+
+function renderNotices(){
+ const box=$('notice');box.textContent='';
+ const today=key(new Date()), mc=me.card?cardId(me.card):'';
+ Object.entries(notices).forEach(([id,n])=>{
+  if(!mc||cardId(n.card)!==mc)return;
+  const s=SLOTS.find(x=>x.id===n.slot)||{label:''};
+  box.appendChild(noteEl('⚠️ Lượt đặt sân '+fmt(n.date)+' ('+s.label+') của bạn đã bị hủy vì sân dùng cho giải đấu'+(n.name?' “'+n.name+'”':'')+'.',()=>{if(ncol)ncol.doc(id).delete().catch(()=>{})}));
+ });
+ Object.values(blocks).filter(b=>b.to>=today).sort((a,b)=>a.from<b.from?-1:1).forEach(b=>{
+  box.appendChild(noteEl('🏆 '+(b.name||'Giải đấu')+': từ '+fmt(b.from)+(b.to!==b.from?' đến '+fmt(b.to):'')+' sân tạm ngưng đặt để tổ chức giải.'));
+ });
+}
+
+function renderAdmin(){
+ const box=$('admin'), ok=isAdmin();box.style.display='block';
+ $('alogin').style.display=ok?'none':'block';$('afull').style.display=ok?'block':'none';
+ $('pinset').style.display=ok?'block':'none';
+ $('aboot').style.display=(ownerFlag&&!ok&&(!pinCfg||!Object.keys(admins).length))?'block':'none';
+ $('pinstate').textContent=pinCfg?'Đã đặt mã PIN.':'Chưa đặt mã PIN, admin chưa thể mở khóa.';
+ if(!ok)return;
+ const al=$('alist');al.textContent='';
+ Object.entries(admins).forEach(([id,a])=>{
+  const chip=document.createElement('span');chip.className='chip';chip.textContent=a.card;
+  const x=document.createElement('button');x.textContent='×';x.onclick=()=>delAdmin(id,a.card);chip.appendChild(x);al.appendChild(chip);
+ });
+ if(!Object.keys(admins).length)al.textContent='Chưa có thẻ admin nào.';
+ const bl=$('blist');bl.textContent='';
+ Object.entries(blocks).sort((a,b)=>a[1].from<b[1].from?-1:1).forEach(([id,b])=>{
+  const r=document.createElement('div');r.className='brow';
+  const t=document.createElement('span');t.textContent='🏆 '+(b.name||'Giải đấu')+' · '+fmt(b.from)+(b.to!==b.from?' – '+fmt(b.to):'');
+  const x=document.createElement('button');x.className='btn ghost';x.textContent='Gỡ';x.onclick=()=>delBlock(id);
+  r.append(t,x);bl.appendChild(r);
+ });
+ if(!Object.keys(blocks).length)bl.textContent='Chưa có đợt ngưng nào.';
+}
+
+async function addAdmin(){
+ if(!acol||!isAdmin())return;
+ const v=$('acard').value.trim();
+ if(!v){toast('Nhập số thẻ');return}
+ try{await acol.doc(cardId(v)).set({card:v,at:Date.now()});$('acard').value='';toast('Đã thêm admin')}
+ catch(e){toast('Không thêm được: '+((e&&e.message)||'lỗi không rõ'))}
+}
+function delAdmin(id,card){
+ ask('Bỏ quyền admin của thẻ '+card+'?','Hủy quyền',async()=>{
+  try{await acol.doc(id).delete();toast('Đã bỏ quyền admin')}
+  catch(e){toast('Không xóa được: '+((e&&e.message)||'lỗi không rõ'))}
+ });
+}
+
+function createBlock(){
+ if(!bcol||!isAdmin())return;
+ const name=$('bname').value.trim(), from=$('bfrom').value, to=$('bto').value||from;
+ if(!from){toast('Chọn ngày bắt đầu');return}
+ if(to<from){toast('Ngày kết thúc phải sau ngày bắt đầu');return}
+ if(to<key(new Date())){toast('Khoảng ngày này đã qua');return}
+ const aff=Object.entries(bookings).filter(([id,b])=>b.date>=from&&b.date<=to&&startOf(b.date,SLOTS.find(x=>x.id===b.slot))>new Date());
+ ask('Ngưng đặt sân từ '+fmt(from)+' đến '+fmt(to)+(name?' (giải '+name+')':'')+'?'+(aff.length?' Có '+aff.length+' lượt đặt trong khoảng này sẽ bị hủy và người đặt sẽ nhận thông báo.':''),'Xác nhận',async()=>{
+  if(busy)return;busy=true;
+  try{
+   await bcol.doc().set({from:from,to:to,name:name,at:Date.now()});
+   const now=Date.now();
+   for(const [id,b] of aff){
+    const js=joinsOf(b.date,b.slot);
+    for(const p of [{card:b.card}].concat(js)){
+     await ncol.doc(b.date+'_'+b.slot+'_'+cardId(p.card)).set({card:p.card,date:b.date,slot:b.slot,name:name,at:now});
+    }
+    for(const j of js)await jcol.doc(j.id).delete();
+    await col.doc(id).delete();
+   }
+   ['bname','bfrom','bto'].forEach(i=>$(i).value='');
+   toast('Đã tạo đợt ngưng đặt sân');
+  }catch(e){toast('Không tạo được: '+((e&&e.message)||'lỗi không rõ'))}
+  finally{busy=false}
+ });
+}
+function delBlock(id){
+ ask('Gỡ đợt ngưng này? Mọi người sẽ đặt sân lại được.','Gỡ',async()=>{
+  try{await bcol.doc(id).delete();toast('Đã gỡ đợt ngưng')}
+  catch(e){toast('Không gỡ được: '+((e&&e.message)||'lỗi không rõ'))}
+ });
+}
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function setPin(){
+ if(!cfg||!isAdmin())return;
+ const p=$('newpin').value.trim();
+ if(!/^\d{4,8}$/.test(p)){toast('PIN gồm 4–8 chữ số');return}
+ const salt=Math.random().toString(36).slice(2)+Date.now().toString(36);
+ try{await cfg.doc('admin').set({salt:salt,hash:await sha(salt+p)});$('newpin').value='';toast('Đã đặt mã PIN')}
+ catch(e){toast('Không đặt được PIN: '+((e&&e.message)||'lỗi không rõ'))}
+}
+async function bootSetup(){
+ if(!ownerFlag||!cfg||!acol)return;
+ const c=$('bcard').value.trim(), p=$('bpin').value.trim();
+ if(!c){toast('Nhập số thẻ admin');return}
+ if(!/^\d{4,8}$/.test(p)){toast('PIN gồm 4–8 chữ số');return}
+ const salt=Math.random().toString(36).slice(2)+Date.now().toString(36);
+ try{
+  await cfg.doc('admin').set({salt:salt,hash:await sha(salt+p)});
+  await acol.doc(cardId(c)).set({card:c,at:Date.now()});
+  $('bcard').value='';$('bpin').value='';toast('Đã thiết lập, giờ hãy đăng nhập bằng thẻ và PIN');
+ }catch(e){toast('Không thiết lập được: '+((e&&e.message)||'lỗi không rõ'))}
+}
+let tries=0,lockUntil=0;
+async function unlock(){
+ if(Date.now()<lockUntil){toast('Nhập sai nhiều lần, thử lại sau 1 phút');return}
+ if(!pinCfg){toast('Chưa có mã PIN, nhờ chủ link đặt trước');return}
+ let h;try{h=await sha(pinCfg.salt+$('pin').value.trim())}catch(e){toast('Trình duyệt không hỗ trợ kiểm tra PIN');return}
+ if(h===pinCfg.hash&&admins[cardId($('lcard').value)]){unlocked=true;tries=0;$('pin').value='';$('lcard').value='';toast('Đã đăng nhập admin');render()}
+ else{tries++;if(tries>=5){lockUntil=Date.now()+60000;tries=0}toast('Sai thẻ hoặc mã PIN')}
+}
+async function cleanup(force){
+ if(!col||!cfg)return;
+ try{
+  const cref=cfg.doc('cleanup'), snap=await cref.get();
+  const last=snap.exists?(snap.data().last||0):0;
+  if(!force&&Date.now()-last<30*864e5)return;
+  const d=new Date();d.setDate(d.getDate()-3);const cut=key(d);
+  let n=0;
+  for(const [c,f] of [[col,'date'],[jcol,'date'],[ncol,'date'],[bcol,'to']]){
+   const qs=await c.where(f,'<',cut).limit(1000).get();
+   for(const x of qs.docs){await c.doc(x.id).delete();n++}
+  }
+  await cref.set({last:Date.now()});
+  if(force)toast('Đã dọn '+n+' bản ghi cũ');
+ }catch(e){if(force)toast('Không dọn được: '+((e&&e.message)||'lỗi không rõ'))}
+}
+$('atoggle').onclick=()=>{const b=$('abody'),o=b.style.display==='none';b.style.display=o?'block':'none';$('atoggle').textContent='🔧 Quản trị '+(o?'▾':'▸')};
+$('bset').onclick=bootSetup;
+$('unl').onclick=unlock;$('setpin').onclick=setPin;$('clean').onclick=()=>cleanup(true);
+$('aadd').onclick=addAdmin;$('badd').onclick=createBlock;
+
+render();
+(async()=>{
+ try{
+  const db=await claude.use('db');
+  if(!db){$('days').insertAdjacentHTML('afterbegin','<p class="sub">Cần đăng nhập claude.ai để xem và đặt sân.</p>');return}
+  col=db.collection('bookings');jcol=db.collection('joins');acol=db.collection('admins');bcol=db.collection('blocks');ncol=db.collection('notices');
+  const sub=(c,set)=>c.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v)m[d.id]=v});set(m);render()},e=>toast('Lỗi tải dữ liệu: '+(e&&e.message||'')));
+  sub(acol,m=>{admins=m});sub(bcol,m=>{blocks=m});sub(ncol,m=>{notices=m});
+  cfg=db.collection('config');cfg.doc('admin').onSnapshot(s=>{pinCfg=s.exists?s.data():null;render()},()=>{});
+  cleanup(false);
+  try{const u=await claude.use('user');ownerFlag=!!(u&&u.isOwner());render()}catch(e){}
+  jcol.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v)m[d.id]=v});joins=m;render()},e=>toast('Lỗi tải dữ liệu: '+(e&&e.message||'')));
+  col.onSnapshot(snap=>{
+   const m={};snap.docs.forEach(d=>{const v=d.data();if(v)m[d.id]=v});
+   bookings=m;render();
+  },e=>toast('Lỗi tải dữ liệu: '+(e&&e.message||'')));
+ }catch(e){toast('Không kết nối được dữ liệu')}
+})();
+setInterval(render,60000);
+</script>
+</body>
+</html>
