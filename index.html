@@ -6,7 +6,7 @@
 <title>Đặt sân Pickleball</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--text:#1a1d21;--muted:#6b7280;--line:#e3e6ea;--ok:#e6f6ec;--okb:#2e9d57;--warn:#fff4d6;--warnb:#d19a00;--bad:#fde8e8;--badb:#d93636;--me:#e5efff;--meb:#2f6fe0;--off:#eceef1;--blk:#efe7fb;--blkb:#8a5cd6;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1d2026;--text:#eceef1;--muted:#98a0ab;--line:#2d3138;--ok:#16301f;--okb:#3fbf72;--warn:#3a3112;--warnb:#e0b52e;--bad:#3a1c1c;--badb:#ef5b5b;--me:#17294d;--meb:#6a9bff;--off:#262a31;--blkb:#a98af0;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1d2026;--text:#eceef1;--muted:#98a0ab;--line:#2d3138;--ok:#16301f;--okb:#3fbf72;--warn:#3a3112;--warnb:#e0b52e;--bad:#3a1c1c;--badb:#ef5b5b;--me:#17294d;--meb:#6a9bff;--off:#262a31;--blk:#2a2142;--blkb:#a98af0;color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0)}
 main{max-width:760px;margin:0 auto;padding:16px}
@@ -46,7 +46,7 @@ h4{margin:12px 0 6px;font-size:14px}
 <body>
 <main>
 <h1>🏓 Đặt sân Pickleball</h1>
-<p class="sub">Bấm vào ô để đặt sân hoặc tham gia nhóm. Bạn sẽ nhận được Mã đặt chỗ để hủy trên thiết bị khác nếu cần.</p>
+<p class="sub">Bấm vào ô để đặt sân hoặc tham gia nhóm. Bấm lại ô của bạn (xanh dương) để hủy.</p>
 <div id="conn"></div>
 <div id="notice"></div>
 
@@ -58,7 +58,8 @@ h4{margin:12px 0 6px;font-size:14px}
   </div>
   <ul class="rules">
     <li>Đặt trước tối đa 7 ngày. Cùng 1 khung giờ, tối đa 3 ngày/tuần (tuần tính từ thứ Hai).</li>
-    <li>Mỗi lần đặt/ghép hệ thống sẽ cho <b>Mã đặt chỗ (4 số)</b>. Nhớ ghi lại để hủy nếu dùng thiết bị khác!</li>
+    <li>Cần 4 người để chơi, tối đa 8 người/khung. Khung chưa đủ 8 người (màu vàng) ai cũng bấm vào tham gia được.</li>
+    <li>Hủy hoặc rút khỏi nhóm được trước giờ bắt đầu, và chỉ trên thiết bị đã đặt. Cần hỗ trợ thì nhờ admin.</li>
   </ul>
 </div>
 
@@ -75,6 +76,7 @@ h4{margin:12px 0 6px;font-size:14px}
       <div id="blist" style="margin-top:8px"></div>
       <h4>Khác</h4>
       <div class="row"><button class="btn ghost" id="clean">Dọn dữ liệu cũ (giữ 3 ngày đã qua)</button><button class="btn ghost" id="alock">Đăng xuất admin</button></div>
+      <p class="sub" style="margin:8px 0 0">Bấm vào ô đã đặt của người khác để hủy hộ. Thêm/bớt thẻ admin: sửa tab Admins trong Google Sheet.</p>
     </div>
   </div>
 </div>
@@ -90,22 +92,12 @@ h4{margin:12px 0 6px;font-size:14px}
 <div id="days"><p class="sub">Đang tải...</p></div>
 </main>
 <div id="toast"></div>
-
-<!-- Modal xác nhận & Nhập mã -->
 <div id="modal"><div class="m"><p id="mtext"></p>
-  <div id="mextra" style="display:none;margin:0 0 14px">
-    <label style="font-size:13px;color:var(--muted)">Số người trong nhóm của bạn (tính cả bạn)</label>
-    <select id="msize"></select>
-  </div>
-  <div id="mcodebox" style="display:none;margin:0 0 14px">
-    <label style="font-size:13px;color:var(--muted)">Nhập Mã đặt chỗ (4 số) của bạn:</label>
-    <input id="mcodeinput" placeholder="Ví dụ: 1234" style="width:100%;margin-top:4px;">
-  </div>
-  <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mno">Đóng</button><button class="btn" id="myes">Xác nhận</button></div>
-</div></div>
+  <div id="mextra" style="display:none;margin:0 0 14px"><label style="font-size:13px;color:var(--muted)">Số người trong nhóm của bạn (tính cả bạn)</label><select id="msize"></select></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mno">Đóng</button><button class="btn" id="myes">Xác nhận</button></div></div></div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXCE7Um61TU3XK4B3SlhiPXE2WKHA3dLmyFr-TImReiOPXFs7hnBQoOm0mL8LJCUp7vQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXCE7Um61TU3XK4B3SlhiPXE2WKHA3dLmyFr-TImReiOPXFs7hnBQoOm0mL8LJCUp7vQ/exec';   // link /exec của Apps Script
 const MAX = 8, MIN_PLAY = 4;
 const SLOTS = [
   { id: 'sang',   label: 'Buổi sáng', time: '5h00 – 7h30',   t: '05:00' },
@@ -125,33 +117,23 @@ for (let i = 1; i <= MAX; i++) { const o = el('option', '', i + ' người'); o.
 $('msize').value = MIN_PLAY;
 
 let tt; function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => e.style.display = 'none', 3500); }
-
-function ask(text, label, cb, opts = {}) {
-  $('mtext').textContent = text; 
-  $('myes').textContent = label; 
-  $('myes').className = 'btn' + (/Hủy|Rút/.test(label) ? ' danger' : '');
-  $('mextra').style.display = opts.withSize ? 'block' : 'none'; 
-  $('mcodebox').style.display = opts.withCodeInput ? 'block' : 'none';
-  if (opts.withCodeInput) $('mcodeinput').value = '';
-  $('modal').style.display = 'flex';
-  
-  $('myes').onclick = () => { 
-    $('modal').style.display = 'none'; 
-    cb({ size: +$('msize').value || 1, code: $('mcodeinput').value.trim() }); 
-  };
+function ask(text, label, cb, withSize) {
+  $('mtext').textContent = text; $('myes').textContent = label; $('myes').className = 'btn' + (/Hủy|Rút/.test(label) ? ' danger' : '');
+  $('mextra').style.display = withSize ? 'block' : 'none'; $('modal').style.display = 'flex';
+  $('myes').onclick = () => { $('modal').style.display = 'none'; cb(+$('msize').value || 1); };
   $('mno').onclick = () => $('modal').style.display = 'none';
 }
 
 async function api(action, data) {
   const body = Object.assign({ action }, data || {});
   if (adm) { body.acard = adm.card; body.apin = adm.pin; }
-  const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(body) });
+  const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(body) });  // không đặt header để tránh lỗi CORS
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Lỗi không rõ');
   return j;
 }
 async function load() {
-  if (SCRIPT_URL.indexOf('http') !== 0) { $('conn').textContent = 'Chưa dán link Apps Script vào SCRIPT_URL.'; return; }
+  if (SCRIPT_URL.indexOf('http') !== 0) { $('conn').textContent = 'Chưa dán link Apps Script vào SCRIPT_URL trong index.html.'; return; }
   try {
     S = await api('state', { card: me.card, tokens: Object.values(tokens) });
     if (adm && !S.admin) adm = null;
@@ -172,40 +154,20 @@ const delTok = (k, s) => { delete tokens[k + '_' + s.id]; save('pb_tokens', toke
 function book(k, s) {
   if (!ready()) return;
   ask('Đặt sân ' + DOW[new Date(k + 'T00:00').getDay()] + ' ' + fmt(k) + ', ' + s.label + ' (' + s.time + ')?', 'Xác nhận',
-    res => act(async () => { 
-      const r = await api('book', { date: k, slot: s.id, name: me.name, card: me.card, size: res.size }); 
-      setTok(k, s, r.token); 
-      alert('🎉 Đặt sân thành công!\nMã đặt chỗ của bạn là: ' + r.code + '\n(Hãy lưu lại mã này để hủy nếu đổi thiết bị khác)');
-    }, 'Đặt sân thành công ✔'), { withSize: true });
+    size => act(async () => { const r = await api('book', { date: k, slot: s.id, name: me.name, card: me.card, size }); setTok(k, s, r.token); }, 'Đặt sân thành công ✔'), true);
 }
-
 function join(k, s, b, n) {
   if (!ready()) return;
   ask('Tham gia nhóm của ' + b.name + ' (' + s.label + ', ' + s.time + ')? Hiện có ' + n + '/' + MAX + ' người.', 'Tham gia',
-    () => act(async () => { 
-      const r = await api('join', { date: k, slot: s.id, name: me.name, card: me.card }); 
-      setTok(k, s, r.token); 
-      alert('🎉 Tham gia thành công!\nMã đặt chỗ của bạn là: ' + r.code + '\n(Hãy lưu lại mã này để rút khỏi nhóm nếu đổi thiết bị khác)');
-    }, 'Đã tham gia ✔'));
+    () => act(async () => { const r = await api('join', { date: k, slot: s.id, name: me.name, card: me.card }); setTok(k, s, r.token); }, 'Đã tham gia ✔'));
 }
-
-function cancel(k, s, byAdmin, needCode) {
-  const promptText = byAdmin ? '[Admin] Hủy đặt sân ngày ' + fmt(k) + '?' : 
-    (needCode ? 'Hủy đặt sân ngày ' + fmt(k) + ' bằng Mã đặt chỗ' : 'Hủy đặt sân ' + s.label + ' ngày ' + fmt(k) + '?');
-  
-  ask(promptText, 'Hủy đặt sân',
-    res => act(async () => { 
-      await api('cancel', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '', code: res.code, card: me.card }); 
-      delTok(k, s); 
-    }, 'Đã hủy'), { withCodeInput: needCode && !byAdmin });
+function cancel(k, s, byAdmin) {
+  ask((byAdmin ? '[Admin] ' : '') + 'Hủy đặt sân ' + s.label + ' ngày ' + fmt(k) + '? Người tham gia thêm cũng bị hủy.', 'Hủy đặt sân',
+    () => act(async () => { await api('cancel', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '' }); delTok(k, s); }, 'Đã hủy'));
 }
-
-function leave(k, s, needCode) {
-  ask('Rút khỏi nhóm ' + s.label + ' ngày ' + fmt(k) + '?', 'Rút khỏi nhóm',
-    res => act(async () => { 
-      await api('leave', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '', code: res.code, card: me.card }); 
-      delTok(k, s); 
-    }, 'Đã rút khỏi nhóm'), { withCodeInput: needCode });
+function leave(k, s) {
+  ask('Rút khỏi nhóm ' + s.label + ' (' + s.time + ') ngày ' + fmt(k) + '?', 'Rút khỏi nhóm',
+    () => act(async () => { await api('leave', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '' }); delTok(k, s); }, 'Đã rút khỏi nhóm'));
 }
 
 function render() {
@@ -227,31 +189,13 @@ function render() {
         const n = b.size + b.joins.length, full = n >= MAX;
         c.classList.add(b.mine ? 'mine' : past ? 'past' : full ? 'full' : 'part');
         c.append(el('div', 'who', b.name + ' · ' + b.card),
-          el('small', 'cnt', n + '/' + MAX + ' người' + (n < MIN_PLAY ? ' · thiếu ' + (MIN_PLAY - n) + ' người' : full ? ' · đã đủ' : '')));
+          el('small', 'cnt', n + '/' + MAX + ' người' + (n < MIN_PLAY ? ' · thiếu ' + (MIN_PLAY - n) + ' người để đủ bộ' : full ? ' · đã đủ' : '')));
         if (b.joins.length) c.append(el('small', '', '+ ' + b.joins.map(j => j.name + ' (' + j.card + ')').join(', ')));
-        
-        if (past) {
-          c.disabled = true;
-        } else if (b.mine === 'host') {
-          c.onclick = () => cancel(k, s, false, false);
-        } else if (b.mine === 'join') {
-          c.onclick = () => leave(k, s, false);
-        } else if (adm) {
-          c.onclick = () => cancel(k, s, true, false);
-        } else {
-          // Bấm vào khung người khác đã đặt/ghép
-          const myJoin = b.joins.find(j => j.card === me.card);
-          const isMyHostCard = b.card === me.card;
-
-          if (isMyHostCard) {
-            c.onclick = () => cancel(k, s, false, true); // Hủy bằng mã/thẻ
-          } else if (myJoin) {
-            c.onclick = () => leave(k, s, true); // Rút bằng mã/thẻ
-          } else if (!full) {
-            c.append(el('small', 'tap', 'Bấm để tham gia'));
-            c.onclick = () => join(k, s, b, n);
-          }
-        }
+        if (past) c.disabled = true;
+        else if (b.mine === 'host') c.onclick = () => cancel(k, s);
+        else if (b.mine === 'join') c.onclick = () => leave(k, s);
+        else if (adm) c.onclick = () => cancel(k, s, true);
+        else if (!full) { c.append(el('small', 'tap', 'Bấm để tham gia')); c.onclick = () => join(k, s, b, n); }
       }
       else if (past) { c.classList.add('past'); c.disabled = true; c.append(el('div', 'who', 'Đã qua')); }
       else { c.classList.add('free'); c.append(el('div', 'who', 'Còn trống')); c.onclick = () => book(k, s); }
