@@ -170,6 +170,7 @@ async function load() {
   if (SCRIPT_URL.indexOf('http') !== 0) { $('conn').textContent = 'Chưa dán link Apps Script vào SCRIPT_URL trong index.html.'; return; }
   try {
     S = await api('state', { card: me.card, tokens: Object.values(codes) });
+    if (Object.values(S.bookings || {}).some(v => !Array.isArray(v))) { S = null; throw new Error('Apps Script đang chạy bản cũ. Vào Deploy > Manage deployments > Edit > Version: New version > Deploy.'); }
     if (adm && !S.admin) adm = null;
     // bỏ mã đã không còn hiệu lực (đã hủy, bị admin hủy, giải đấu...)
     let ch = false;
