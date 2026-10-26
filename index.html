@@ -19,20 +19,26 @@ select{width:100%;margin-top:6px}
 button{font:inherit;cursor:pointer}
 .btn{padding:9px 14px;border-radius:8px;border:0;background:var(--meb);color:#fff;font-weight:600}
 .btn.ghost{background:var(--off);color:var(--text)}
-.btn.danger{background:var(--badb)}
+.btn.danger{background:var(--badb);color:#fff}
 .rules{font-size:13px;color:var(--muted);margin:10px 0 0;padding-left:18px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:12px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1.5px solid}
 .day h3{margin:0 0 8px;font-size:15px}.day h3 span{color:var(--muted);font-weight:400;font-size:13px}
-.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 @media (max-width:560px){.slots{grid-template-columns:1fr}}
 .slot{border:1.5px solid;border-radius:10px;padding:9px 10px;text-align:left;min-height:68px;color:var(--text)}
-.slot b{display:block;font-size:13px}.slot small{display:block;color:var(--muted);font-size:12px}
+.slot>b{display:block;font-size:13px}.slot>small{display:block;color:var(--muted);font-size:12px}
 .slot .who{margin-top:3px;font-size:13px;font-weight:600;overflow-wrap:anywhere}
-.slot .cnt{font-weight:600;color:var(--text)}.slot .tap{font-weight:600;color:var(--warnb);margin-top:2px}
+.slot .cnt{font-weight:600;color:var(--text);margin-top:4px}
+.slot .add{width:100%;margin-top:8px;padding:7px 10px;font-size:13px}
+.person{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);font-size:13px;font-weight:600}
+.person .pi{overflow-wrap:anywhere;min-width:0}
+.person .acts{display:flex;gap:4px;flex:none}
+.mini{border:0;border-radius:6px;padding:4px 8px;font-size:12px;background:var(--off);color:var(--text)}
+.mini.d{background:var(--badb);color:#fff}
 .free{background:var(--ok);border-color:var(--okb)}.part{background:var(--warn);border-color:var(--warnb)}
-.full{background:var(--bad);border-color:var(--badb);cursor:default}.mine{background:var(--me);border-color:var(--meb)}
-.past{background:var(--off);border-color:var(--line);opacity:.6;cursor:not-allowed}.block{background:var(--blk);border-color:var(--blkb);cursor:not-allowed}
+.full{background:var(--bad);border-color:var(--badb)}.mine{background:var(--me);border-color:var(--meb)}
+.past{background:var(--off);border-color:var(--line);opacity:.65}.block{background:var(--blk);border-color:var(--blkb)}
 .note{display:flex;gap:8px;align-items:center;justify-content:space-between;background:var(--blk);border:1px solid var(--blkb);border-radius:10px;padding:9px 12px;margin-bottom:8px;font-size:14px}
 .note button{border:0;background:var(--off);color:var(--text);border-radius:6px;padding:5px 9px;flex:none}
 .brow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14px}
@@ -40,13 +46,18 @@ h4{margin:12px 0 6px;font-size:14px}
 #conn{color:var(--badb);font-size:13px;margin-bottom:8px}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#222;color:#fff;padding:10px 16px;border-radius:10px;max-width:90vw;display:none;z-index:20;font-size:14px}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
-#modal .m{background:var(--card);border-radius:14px;padding:18px;max-width:380px;width:100%}#modal p{margin:0 0 14px}
+#modal .m{background:var(--card);border-radius:14px;padding:18px;max-width:380px;width:100%}
+#mtext{margin:0 0 14px;white-space:pre-line}
+#qres{max-height:220px;overflow:auto;margin-top:6px;font-size:13px}#qres .brow{font-size:13px;padding:4px 0}#qres h4{margin:8px 0 2px;font-size:13px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}.duo .box{margin-bottom:12px}
+@media (max-width:560px){.duo{grid-template-columns:1fr;gap:0}}
+#mcode{display:none;font:700 28px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;text-align:center;background:var(--me);border:1.5px solid var(--meb);border-radius:10px;padding:12px;margin:0 0 14px;user-select:all}
 </style>
 </head>
 <body>
 <main>
 <h1>🏓 Đặt sân Pickleball</h1>
-<p class="sub">Bấm vào ô để đặt sân hoặc tham gia nhóm. Bấm lại ô của bạn (xanh dương) để hủy.</p>
+<p class="sub">Bấm vào ô trống để đặt sân, hoặc bấm “Thêm người” ở ô vàng để đăng ký thêm.</p>
 <div id="conn"></div>
 <div id="notice"></div>
 
@@ -57,10 +68,23 @@ h4{margin:12px 0 6px;font-size:14px}
     <button class="btn" id="save">Lưu</button>
   </div>
   <ul class="rules">
-    <li>Đặt trước tối đa 7 ngày. Cùng 1 khung giờ, tối đa 3 ngày/tuần (tuần tính từ thứ Hai).</li>
-    <li>Cần 4 người để chơi, tối đa 8 người/khung. Khung chưa đủ 8 người (màu vàng) ai cũng bấm vào tham gia được.</li>
-    <li>Hủy hoặc rút khỏi nhóm được trước giờ bắt đầu, và chỉ trên thiết bị đã đặt. Cần hỗ trợ thì nhờ admin.</li>
+    <li>Mở đăng ký thứ Hai – thứ Bảy (không có Chủ nhật), luôn mở 2 tuần. 0:00 Chủ nhật mở thêm tuần kế tiếp.</li>
+    <li>Cùng 1 khung giờ, tối đa 3 ngày/tuần (tuần tính từ thứ Hai).</li>
+    <li>Cần 4 người để chơi, tối đa 8 người/khung. Khung vàng (chưa đủ 8) ai cũng đăng ký thêm được, một lần nhiều người cũng được cho tới khi đủ 8.</li>
+    <li>Mỗi lượt đăng ký có 1 mã đặt chỗ, dùng để hủy/sửa trước giờ bắt đầu. Mỗi người chỉ hủy phần của mình. Quên mã thì nhờ admin.</li>
   </ul>
+</div>
+
+<div class="duo">
+  <div class="box">
+    <h4 style="margin:0 0 6px">Tra cứu theo số thẻ</h4>
+    <div class="row"><input id="qcard" placeholder="Số thẻ" style="min-width:90px"><button class="btn" id="qgo">Xem</button></div>
+    <div id="qres"></div>
+  </div>
+  <div class="box">
+    <h4 style="margin:0 0 6px">Hủy bằng mã đặt chỗ</h4>
+    <div class="row"><input id="ccode" placeholder="Mã 4 ký tự" maxlength="6" autocomplete="off" style="min-width:90px;text-transform:uppercase"><button class="btn danger" id="cgo">Hủy</button></div>
+  </div>
 </div>
 
 <div class="box" id="admin">
@@ -75,26 +99,26 @@ h4{margin:12px 0 6px;font-size:14px}
       <div class="row" style="margin-top:8px"><input id="bfrom" type="date"><input id="bto" type="date"><button class="btn" id="badd">Ngưng đặt sân</button></div>
       <div id="blist" style="margin-top:8px"></div>
       <h4>Khác</h4>
-      <div class="row"><button class="btn ghost" id="clean">Dọn dữ liệu cũ (giữ 3 ngày đã qua)</button><button class="btn ghost" id="alock">Đăng xuất admin</button></div>
-      <p class="sub" style="margin:8px 0 0">Bấm vào ô đã đặt của người khác để hủy hộ. Thêm/bớt thẻ admin: sửa tab Admins trong Google Sheet.</p>
+      <div class="row"><button class="btn ghost" id="clean">Dọn dữ liệu cũ (giữ từ thứ Hai tuần này)</button><button class="btn ghost" id="alock">Đăng xuất admin</button></div>
+      <p class="sub" style="margin:8px 0 0">Bấm “Hủy” cạnh tên từng người để hủy hộ người đó. Thêm/bớt thẻ admin: sửa tab Admins trong Google Sheet.</p>
     </div>
   </div>
 </div>
 
 <div class="legend">
   <span><i style="background:var(--ok);border-color:var(--okb)"></i>Trống</span>
-  <span><i style="background:var(--warn);border-color:var(--warnb)"></i>Đã đặt, chưa đủ 8 người</span>
+  <span><i style="background:var(--warn);border-color:var(--warnb)"></i>Đã có người, chưa đủ 8</span>
   <span><i style="background:var(--bad);border-color:var(--badb)"></i>Đủ 8 người</span>
-  <span><i style="background:var(--me);border-color:var(--meb)"></i>Của bạn</span>
+  <span><i style="background:var(--me);border-color:var(--meb)"></i>Có bạn</span>
   <span><i style="background:var(--off);border-color:var(--line)"></i>Đã qua</span>
   <span><i style="background:var(--blk);border-color:var(--blkb)"></i>Giải đấu</span>
 </div>
 <div id="days"><p class="sub">Đang tải...</p></div>
 </main>
 <div id="toast"></div>
-<div id="modal"><div class="m"><p id="mtext"></p>
-  <div id="mextra" style="display:none;margin:0 0 14px"><label style="font-size:13px;color:var(--muted)">Số người trong nhóm của bạn (tính cả bạn)</label><select id="msize"></select></div>
-  <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mno">Đóng</button><button class="btn" id="myes">Xác nhận</button></div></div></div>
+<div id="modal"><div class="m"><p id="mtext"></p><div id="mcode"></div>
+  <div id="mextra" style="display:none;margin:0 0 14px"><label id="mlabel" style="font-size:13px;color:var(--muted)"></label><select id="msize"></select></div>
+  <div class="row" id="mbtns" style="justify-content:flex-end"></div></div></div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXCE7Um61TU3XK4B3SlhiPXE2WKHA3dLmyFr-TImReiOPXFs7hnBQoOm0mL8LJCUp7vQ/exec';   // link /exec của Apps Script
@@ -107,22 +131,32 @@ const SLOTS = [
 const DOW = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const $ = id => document.getElementById(id);
 const LS = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
-const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const pad = n => String(n).padStart(2, '0'), fmt = k => k.slice(8) + '/' + k.slice(5, 7);
+const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const dowOf = k => new Date(k + 'T00:00').getDay();
+const showCode = c => c, normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 function el(t, c, x) { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
 
-let S = null, me = LS('pb_me', { name: '', card: '' }), tokens = LS('pb_tokens', {}), dis = LS('pb_dis', []), adm = null, busy = false;
-$('name').value = me.name; $('card').value = me.card;
-for (let i = 1; i <= MAX; i++) { const o = el('option', '', i + ' người'); o.value = i; $('msize').append(o); }
-$('msize').value = MIN_PLAY;
+let S = null, me = LS('pb_me', { name: '', card: '' }), codes = LS('pb_codes', {}), dis = LS('pb_dis', []), adm = null, busy = false;
+$('name').value = me.name; $('card').value = me.card; $('qcard').value = me.card;
 
 let tt; function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => e.style.display = 'none', 3500); }
-function ask(text, label, cb, withSize) {
-  $('mtext').textContent = text; $('myes').textContent = label; $('myes').className = 'btn' + (/Hủy|Rút/.test(label) ? ' danger' : '');
-  $('mextra').style.display = withSize ? 'block' : 'none'; $('modal').style.display = 'flex';
-  $('myes').onclick = () => { $('modal').style.display = 'none'; cb(+$('msize').value || 1); };
-  $('mno').onclick = () => $('modal').style.display = 'none';
+// Hộp thoại: text, danh sách nút [{label, cls, fn(size)}], size {max, val, label}, code (mã đặt chỗ)
+function modal(text, btns, size, code) {
+  $('mtext').textContent = text;
+  $('mcode').style.display = code ? 'block' : 'none'; $('mcode').textContent = code || '';
+  const ms = $('msize'); ms.textContent = '';
+  if (size) {
+    for (let i = 1; i <= size.max; i++) { const o = el('option', '', i + ' người'); o.value = i; ms.append(o); }
+    ms.value = size.val; $('mlabel').textContent = size.label;
+  }
+  $('mextra').style.display = size ? 'block' : 'none';
+  const bx = $('mbtns'); bx.textContent = '';
+  btns.forEach(b => { const x = el('button', 'btn ' + (b.cls || ''), b.label); x.onclick = () => { $('modal').style.display = 'none'; if (b.fn) b.fn(+ms.value || 1); }; bx.append(x); });
+  $('modal').style.display = 'flex';
 }
+const close = { label: 'Đóng', cls: 'ghost' };
 
 async function api(action, data) {
   const body = Object.assign({ action }, data || {});
@@ -135,8 +169,12 @@ async function api(action, data) {
 async function load() {
   if (SCRIPT_URL.indexOf('http') !== 0) { $('conn').textContent = 'Chưa dán link Apps Script vào SCRIPT_URL trong index.html.'; return; }
   try {
-    S = await api('state', { card: me.card, tokens: Object.values(tokens) });
+    S = await api('state', { card: me.card, tokens: Object.values(codes) });
     if (adm && !S.admin) adm = null;
+    // bỏ mã đã không còn hiệu lực (đã hủy, bị admin hủy, giải đấu...)
+    let ch = false;
+    Object.keys(codes).forEach(key => { if (!(S.bookings[key] || []).some(r => r.mine)) { delete codes[key]; ch = true; } });
+    if (ch) store('pb_codes', codes);
     $('conn').textContent = ''; render();
   } catch (e) { $('conn').textContent = 'Không kết nối được dữ liệu: ' + e.message; }
 }
@@ -148,57 +186,72 @@ function ready() {
   if (me.name && me.card) return true;
   toast('Nhập họ tên và số thẻ ở trên rồi bấm Lưu trước nhé'); scrollTo({ top: 0, behavior: 'smooth' }); return false;
 }
-const setTok = (k, s, t) => { tokens[k + '_' + s.id] = t; save('pb_tokens', tokens); };
-const delTok = (k, s) => { delete tokens[k + '_' + s.id]; save('pb_tokens', tokens); };
+const when = (k, s) => DOW[dowOf(k)] + ' ' + fmt(k) + ', ' + s.label + ' (' + s.time + ')';
 
-function book(k, s) {
+function reg(k, s, left) {
   if (!ready()) return;
-  ask('Đặt sân ' + DOW[new Date(k + 'T00:00').getDay()] + ' ' + fmt(k) + ', ' + s.label + ' (' + s.time + ')?', 'Xác nhận',
-    size => act(async () => { const r = await api('book', { date: k, slot: s.id, name: me.name, card: me.card, size }); setTok(k, s, r.token); }, 'Đặt sân thành công ✔'), true);
+  const first = left === MAX;
+  modal((first ? 'Đặt sân ' : 'Thêm người vào ') + when(k, s) + '?', [close, { label: 'Xác nhận', fn: size => act(async () => {
+    const r = await api('reg', { date: k, slot: s.id, name: me.name, card: me.card, size });
+    codes[k + '_' + s.id] = r.code; store('pb_codes', codes);
+    modal('Đăng ký thành công ✔\n' + when(k, s) + ' · ' + size + ' người\nLưu lại mã đặt chỗ để hủy/sửa khi cần:', [{ label: 'Đã lưu' }], null, showCode(r.code));
+  }) }], { max: left, val: first ? Math.min(MIN_PLAY, left) : 1, label: 'Số người đăng ký (tính cả bạn) · còn ' + left + ' chỗ' });
 }
-function join(k, s, b, n) {
-  if (!ready()) return;
-  ask('Tham gia nhóm của ' + b.name + ' (' + s.label + ', ' + s.time + ')? Hiện có ' + n + '/' + MAX + ' người.', 'Tham gia',
-    () => act(async () => { const r = await api('join', { date: k, slot: s.id, name: me.name, card: me.card }); setTok(k, s, r.token); }, 'Đã tham gia ✔'));
+function edit(k, s, r, left) {
+  modal('Sửa số người ' + when(k, s) + '. Mã của bạn: ' + showCode(codes[k + '_' + s.id] || '?'), [close, { label: 'Lưu', fn: size => act(async () => {
+    await api('resize', { date: k, slot: s.id, code: codes[k + '_' + s.id], size });
+  }, 'Đã cập nhật') }], { max: r.size + left, val: r.size, label: 'Số người (tính cả bạn)' });
 }
-function cancel(k, s, byAdmin) {
-  ask((byAdmin ? '[Admin] ' : '') + 'Hủy đặt sân ' + s.label + ' ngày ' + fmt(k) + '? Người tham gia thêm cũng bị hủy.', 'Hủy đặt sân',
-    () => act(async () => { await api('cancel', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '' }); delTok(k, s); }, 'Đã hủy'));
+function cancelMine(k, s) {
+  modal('Hủy lượt đăng ký của bạn ' + when(k, s) + '?', [close, { label: 'Hủy đăng ký', cls: 'danger', fn: () => act(async () => {
+    await api('cancel', { code: codes[k + '_' + s.id] }); delete codes[k + '_' + s.id]; store('pb_codes', codes);
+  }, 'Đã hủy') }]);
 }
-function leave(k, s) {
-  ask('Rút khỏi nhóm ' + s.label + ' (' + s.time + ') ngày ' + fmt(k) + '?', 'Rút khỏi nhóm',
-    () => act(async () => { await api('leave', { date: k, slot: s.id, token: tokens[k + '_' + s.id] || '' }); delTok(k, s); }, 'Đã rút khỏi nhóm'));
+function cancelAdmin(k, s, r) {
+  modal('[Admin] Hủy lượt của ' + r.name + ' (' + r.card + ') ' + when(k, s) + '?', [close, { label: 'Hủy', cls: 'danger', fn: () => act(async () => {
+    await api('cancel', { date: k, slot: s.id, target: r.card });
+  }, 'Đã hủy') }]);
 }
+
+function mini(label, fn, d) { const b = el('button', 'mini' + (d ? ' d' : ''), label); b.onclick = fn; return b; }
 
 function render() {
   if (!S) return;
   const root = $('days'); root.textContent = '';
   const [y, m, d0] = S.today.split('-').map(Number);
-  for (let i = 0; i <= 7; i++) {
-    const dt = new Date(y, m - 1, d0 + i), k = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+  // chỉ hiện từ hôm qua đến hết ngày mở đăng ký, bỏ Chủ nhật
+  for (let i = -1; i < 20; i++) {
+    const dt = new Date(y, m - 1, d0 + i);
+    if (dt.getDay() === 0) continue;
+    const k = ymd(dt); if (k > S.last) break;
     const blk = S.blocks.find(b => k >= b.from && k <= b.to);
     const day = el('div', 'day'), h = el('h3');
-    h.append((i === 0 ? 'Hôm nay · ' : i === 1 ? 'Ngày mai · ' : '') + DOW[dt.getDay()] + ' ', el('span', '', fmt(k)));
+    h.append((i === -1 ? 'Hôm qua · ' : i === 0 ? 'Hôm nay · ' : i === 1 ? 'Ngày mai · ' : '') + DOW[dt.getDay()] + ' ', el('span', '', fmt(k)));
     day.append(h);
     const g = el('div', 'slots');
     SLOTS.forEach(s => {
-      const b = S.bookings[k + '_' + s.id], past = (k + 'T' + s.t) <= S.now, c = el('button', 'slot');
+      const list = S.bookings[k + '_' + s.id] || [], n = list.reduce((a, r) => a + r.size, 0), left = MAX - n;
+      const past = (k + 'T' + s.t) <= S.now, hasMine = list.some(r => r.mine), c = el('div', 'slot');
       c.append(el('b', '', s.label), el('small', '', s.time));
-      if (blk) { c.classList.add('block'); c.disabled = true; c.append(el('div', 'who', '🏆 ' + (blk.name || 'Giải đấu'))); }
-      else if (b) {
-        const n = b.size + b.joins.length, full = n >= MAX;
-        c.classList.add(b.mine ? 'mine' : past ? 'past' : full ? 'full' : 'part');
-        c.append(el('div', 'who', b.name + ' · ' + b.card),
-          el('small', 'cnt', n + '/' + MAX + ' người' + (n < MIN_PLAY ? ' · thiếu ' + (MIN_PLAY - n) + ' người để đủ bộ' : full ? ' · đã đủ' : '')));
-        if (b.joins.length) c.append(el('small', '', '+ ' + b.joins.map(j => j.name + ' (' + j.card + ')').join(', ')));
-        if (past) c.disabled = true;
-        else if (b.mine === 'host') c.onclick = () => cancel(k, s);
-        else if (b.mine === 'join') c.onclick = () => leave(k, s);
-        else if (adm) c.onclick = () => cancel(k, s, true);
-        else if (!full) { c.append(el('small', 'tap', 'Bấm để tham gia')); c.onclick = () => join(k, s, b, n); }
+      if (blk) { c.classList.add('block'); c.append(el('div', 'who', '🏆 ' + (blk.name || 'Giải đấu'))); g.append(c); return; }
+      c.classList.add(past ? 'past' : hasMine ? 'mine' : n === 0 ? 'free' : left <= 0 ? 'full' : 'part');
+      list.forEach(r => {
+        const p = el('div', 'person');
+        p.append(el('span', 'pi', r.name + ' · ' + r.card + ' · ' + r.size + ' người' + (r.mine ? ' (bạn)' : '')));
+        if (!past) {
+          const a = el('span', 'acts');
+          if (r.mine) a.append(mini('Sửa', () => edit(k, s, r, left)), mini('Hủy', () => cancelMine(k, s), 1));
+          else if (adm) a.append(mini('Hủy', () => cancelAdmin(k, s, r), 1));
+          p.append(a);
+        }
+        c.append(p);
+      });
+      if (n > 0) c.append(el('small', 'cnt', n + '/' + MAX + ' người' + (n < MIN_PLAY ? ' · thiếu ' + (MIN_PLAY - n) + ' người để đủ bộ' : left <= 0 ? ' · đã đủ' : '')));
+      if (past) { if (!n) c.append(el('div', 'who', 'Đã qua')); }
+      else if (!hasMine && left > 0) {
+        const a = el('button', 'btn add', n ? 'Thêm người (còn ' + left + ' chỗ)' : 'Đặt sân');
+        a.onclick = () => reg(k, s, left); c.append(a);
       }
-      else if (past) { c.classList.add('past'); c.disabled = true; c.append(el('div', 'who', 'Đã qua')); }
-      else { c.classList.add('free'); c.append(el('div', 'who', 'Còn trống')); c.onclick = () => book(k, s); }
       g.append(c);
     });
     day.append(g); root.append(day);
@@ -216,7 +269,7 @@ function renderNotes() {
   S.notices.filter(n => !dis.includes(n.id)).forEach(n => {
     const s = SLOTS.find(x => x.id === n.slot);
     note(box, '⚠️ Lượt đăng ký ' + fmt(n.date) + ' (' + s.label + ') của bạn đã bị hủy vì sân dùng cho giải đấu' + (n.name ? ' “' + n.name + '”' : '') + '.',
-      () => { dis.push(n.id); save('pb_dis', dis); render(); });
+      () => { dis.push(n.id); store('pb_dis', dis); render(); });
   });
   S.blocks.filter(b => b.to >= S.today).forEach(b =>
     note(box, '🏆 ' + (b.name || 'Giải đấu') + ': ' + fmt(b.from) + (b.to !== b.from ? ' – ' + fmt(b.to) : '') + ' sân tạm ngưng đặt để tổ chức giải.'));
@@ -237,7 +290,31 @@ function renderAdmin() {
 $('save').onclick = () => {
   const n = $('name').value.trim(), c = $('card').value.trim();
   if (!n || !c) { toast('Nhập đủ họ tên và số thẻ nhé'); return; }
-  me = { name: n, card: c }; save('pb_me', me); toast('Đã lưu thông tin'); load();
+  me = { name: n, card: c }; store('pb_me', me); if (!$('qcard').value) $('qcard').value = c; toast('Đã lưu thông tin'); load();
+};
+$('qgo').onclick = async () => {
+  const c = $('qcard').value.trim(), box = $('qres'); if (!c) { toast('Nhập số thẻ'); return; }
+  try {
+    const r = await api('lookup', { card: c }); box.textContent = '';
+    if (!r.items.length) { box.append(el('p', 'sub', 'Chưa có lượt đăng ký nào.')); return; }
+    box.append(el('h4', '', 'Các lượt đã đăng ký'));
+    r.items.forEach(i => {
+      const s = SLOTS.find(x => x.id === i.slot);
+      box.append(el('div', 'brow', DOW[dowOf(i.date)] + ' ' + fmt(i.date) + ' · ' + s.label + ' (' + s.time + ') · ' + i.size + ' người' + (i.blocked ? ' · đã hủy do giải đấu' : '')));
+    });
+    box.append(el('h4', '', 'Số ngày đã dùng trong tuần (tối đa ' + r.per + ')'));
+    Object.keys(r.used).sort().forEach(key => {
+      const [w, sl] = key.split('|'), s = SLOTS.find(x => x.id === sl);
+      box.append(el('div', 'brow', 'Tuần từ ' + fmt(w) + ' · ' + s.label + ': ' + r.used[key] + '/' + r.per + ' ngày'));
+    });
+  } catch (e) { toast(e.message); }
+};
+$('cgo').onclick = () => {
+  const code = normCode($('ccode').value); if (code.length < 4) { toast('Nhập mã đặt chỗ'); return; }
+  modal('Hủy lượt đăng ký có mã ' + showCode(code) + '?', [close, { label: 'Hủy đăng ký', cls: 'danger', fn: () => act(async () => {
+    await api('cancel', { code });
+    Object.keys(codes).forEach(k => { if (normCode(codes[k]) === code) delete codes[k]; }); store('pb_codes', codes); $('ccode').value = '';
+  }, 'Đã hủy') }]);
 };
 $('atoggle').onclick = () => { const b = $('abody'), o = b.style.display === 'none'; b.style.display = o ? 'block' : 'none'; $('atoggle').textContent = '🔧 Quản trị ' + (o ? '▾' : '▸'); };
 $('unl').onclick = async () => {
@@ -249,13 +326,13 @@ $('alock').onclick = () => { adm = null; render(); };
 $('badd').onclick = () => {
   const from = $('bfrom').value, to = $('bto').value || from, name = $('bname').value.trim();
   if (!from) { toast('Chọn ngày bắt đầu'); return; }
-  ask('Ngưng đặt sân từ ' + fmt(from.slice(0)) + ' đến ' + fmt(to) + (name ? ' (giải ' + name + ')' : '') + '? Lượt đã đặt trong khoảng này sẽ bị hủy và người đặt thấy thông báo khi mở trang.', 'Xác nhận',
-    () => act(async () => { await api('admin_block', { from, to, name }); $('bname').value = $('bfrom').value = $('bto').value = ''; }, 'Đã tạo đợt ngưng đặt sân'));
+  modal('Ngưng đặt sân từ ' + fmt(from) + ' đến ' + fmt(to) + (name ? ' (giải ' + name + ')' : '') + '? Lượt đã đăng ký trong khoảng này sẽ bị hủy và người đăng ký thấy thông báo khi mở trang.', [close, { label: 'Xác nhận', fn: () =>
+    act(async () => { await api('admin_block', { from, to, name }); $('bname').value = $('bfrom').value = $('bto').value = ''; }, 'Đã tạo đợt ngưng đặt sân') }]);
 };
 $('clean').onclick = () => act(async () => { const r = await api('admin_cleanup'); toast('Đã dọn ' + r.deleted + ' bản ghi cũ'); });
 
 load();
-setInterval(() => { if (!document.hidden && !busy) load(); }, 15000);
+setInterval(() => { if (!document.hidden && !busy && $('modal').style.display !== 'flex') load(); }, 15000);
 </script>
 </body>
 </html>
