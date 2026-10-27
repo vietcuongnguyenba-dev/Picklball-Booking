@@ -96,6 +96,7 @@ h4{margin:12px 0 6px;font-size:14px}
     <div id="afull" style="display:none">
       <h4>Tạm ngưng đặt sân (tổ chức giải)</h4>
       <div class="row"><input id="bname" placeholder="Tên giải (hiện cho mọi người)"></div>
+      <div class="row" id="bslots" style="margin-top:8px;font-size:14px;gap:14px"></div>
       <div class="row" style="margin-top:8px"><input id="bfrom" type="date"><input id="bto" type="date"><button class="btn" id="badd">Ngưng đặt sân</button></div>
       <div id="blist" style="margin-top:8px"></div>
       <h4>Khác</h4>
@@ -189,6 +190,9 @@ function ready() {
   if (me.name && me.card) return true;
   toast('Nhập họ tên và số thẻ ở trên rồi bấm Lưu trước nhé'); scrollTo({ top: 0, behavior: 'smooth' }); return false;
 }
+const slotTxt = b => b.slots ? b.slots.split(',').map(id => (SLOTS.find(x => x.id === id) || {}).label).join(', ') : 'cả ngày';
+const blockOf = (k, sid) => S.blocks.find(b => k >= b.from && k <= b.to && (!b.slots || b.slots.split(',').indexOf(sid) >= 0));
+SLOTS.forEach(s => { const l = el('label'); l.style.cssText = 'display:flex;gap:5px;align-items:center'; const i = el('input'); i.type = 'checkbox'; i.value = s.id; i.checked = true; i.style.cssText = 'flex:none;min-width:0'; l.append(i, s.label + ' (' + s.time + ')'); $('bslots').append(l); });
 const when = (k, s) => DOW[dowOf(k)] + ' ' + fmt(k) + ', ' + s.label + ' (' + s.time + ')';
 
 function reg(k, s, left) {
@@ -208,7 +212,7 @@ function openEdit(code, k, sid, size) {
   for (let i = 0; i < 20; i++) {
     const dt = new Date(y, m - 1, d0 + i); if (dt.getDay() === 0) continue;
     const kk = ymd(dt); if (kk > S.last) break;
-    if (S.blocks.some(b => kk >= b.from && kk <= b.to)) continue;
+    if (S.blocks.some(b => kk >= b.from && kk <= b.to && !b.slots)) continue;
     const o = el('option', '', DOW[dt.getDay()] + ' ' + fmt(kk)); o.value = kk; ds.append(o);
   }
   if (![...ds.options].some(o => o.value === k)) { const o = el('option', '', DOW[dowOf(k)] + ' ' + fmt(k)); o.value = k; ds.prepend(o); }
@@ -244,7 +248,6 @@ function render() {
     const dt = new Date(y, m - 1, d0 + i);
     if (dt.getDay() === 0) continue;
     const k = ymd(dt); if (k > S.last) break;
-    const blk = S.blocks.find(b => k >= b.from && k <= b.to);
     const day = el('div', 'day'), h = el('h3');
     h.append((i === -1 ? 'Hôm qua · ' : i === 0 ? 'Hôm nay · ' : i === 1 ? 'Ngày mai · ' : '') + DOW[dt.getDay()] + ' ', el('span', '', fmt(k)));
     day.append(h);
@@ -253,6 +256,7 @@ function render() {
       const list = S.bookings[k + '_' + s.id] || [], n = list.reduce((a, r) => a + r.size, 0), left = MAX - n;
       const past = (k + 'T' + s.t) <= S.now, hasMine = list.some(r => r.mine), c = el('div', 'slot');
       c.append(el('b', '', s.label), el('small', '', s.time));
+      const blk = blockOf(k, s.id);
       if (blk) { c.classList.add('block'); c.append(el('div', 'who', '🏆 ' + (blk.name || 'Giải đấu'))); g.append(c); return; }
       c.classList.add(past ? 'past' : hasMine ? 'mine' : n === 0 ? 'free' : left <= 0 ? 'full' : 'part');
       list.forEach(r => {
@@ -292,7 +296,7 @@ function renderNotes() {
       () => { dis.push(n.id); store('pb_dis', dis); render(); });
   });
   S.blocks.filter(b => b.to >= S.today).forEach(b =>
-    note(box, '🏆 ' + (b.name || 'Giải đấu') + ': ' + fmt(b.from) + (b.to !== b.from ? ' – ' + fmt(b.to) : '') + ' sân tạm ngưng đặt để tổ chức giải.'));
+    note(box, '🏆 ' + (b.name || 'Giải đấu') + ': ' + fmt(b.from) + (b.to !== b.from ? ' – ' + fmt(b.to) : '') + ' (' + slotTxt(b) + ') sân tạm ngưng đặt để tổ chức giải.'));
 }
 function renderAdmin() {
   const on = !!adm;
@@ -302,7 +306,7 @@ function renderAdmin() {
   S.blocks.forEach(b => {
     const r = el('div', 'brow'), x = el('button', 'btn ghost', 'Gỡ');
     x.onclick = () => act(() => api('admin_unblock', b), 'Đã gỡ đợt ngưng');
-    r.append(el('span', '', '🏆 ' + (b.name || 'Giải đấu') + ' · ' + fmt(b.from) + (b.to !== b.from ? ' – ' + fmt(b.to) : '')), x); bl.append(r);
+    r.append(el('span', '', '🏆 ' + (b.name || 'Giải đấu') + ' · ' + fmt(b.from) + (b.to !== b.from ? ' – ' + fmt(b.to) : '') + ' · ' + slotTxt(b)), x); bl.append(r);
   });
   if (!S.blocks.length) bl.textContent = 'Chưa có đợt ngưng nào.';
 }
@@ -349,9 +353,11 @@ $('unl').onclick = async () => {
 $('alock').onclick = () => { adm = null; render(); };
 $('badd').onclick = () => {
   const from = $('bfrom').value, to = $('bto').value || from, name = $('bname').value.trim();
+  const slots = [...$('bslots').querySelectorAll('input:checked')].map(i => i.value), sTxt = slots.length === SLOTS.length ? 'cả ngày' : slotTxt({ slots: slots.join(',') });
   if (!from) { toast('Chọn ngày bắt đầu'); return; }
-  modal('Ngưng đặt sân từ ' + fmt(from) + ' đến ' + fmt(to) + (name ? ' (giải ' + name + ')' : '') + '? Lượt đã đăng ký trong khoảng này sẽ bị hủy và người đăng ký thấy thông báo khi mở trang.', [close, { label: 'Xác nhận', fn: () =>
-    act(async () => { await api('admin_block', { from, to, name }); $('bname').value = $('bfrom').value = $('bto').value = ''; }, 'Đã tạo đợt ngưng đặt sân') }]);
+  if (!slots.length) { toast('Chọn ít nhất 1 khung giờ'); return; }
+  modal('Ngưng đặt sân (' + sTxt + ') từ ' + fmt(from) + ' đến ' + fmt(to) + (name ? ' (giải ' + name + ')' : '') + '? Lượt đã đăng ký trong khoảng này sẽ bị hủy và người đăng ký thấy thông báo khi mở trang.', [close, { label: 'Xác nhận', fn: () =>
+    act(async () => { await api('admin_block', { from, to, name, slots }); $('bname').value = $('bfrom').value = $('bto').value = ''; }, 'Đã tạo đợt ngưng đặt sân') }]);
 };
 $('clean').onclick = () => act(async () => { const r = await api('admin_cleanup'); toast('Đã dọn ' + r.deleted + ' bản ghi cũ'); });
 
