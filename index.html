@@ -82,8 +82,8 @@ h4{margin:12px 0 6px;font-size:14px}
     <div id="qres"></div>
   </div>
   <div class="box">
-    <h4 style="margin:0 0 6px">Hủy bằng mã đặt chỗ</h4>
-    <div class="row"><input id="ccode" placeholder="Mã 4 ký tự" maxlength="6" autocomplete="off" style="min-width:90px;text-transform:uppercase"><button class="btn danger" id="cgo">Hủy</button></div>
+    <h4 style="margin:0 0 6px">Sửa / hủy bằng mã</h4>
+    <div class="row"><input id="ccode" placeholder="Mã 4 ký tự" maxlength="6" autocomplete="off" style="min-width:90px;text-transform:uppercase"><button class="btn" id="cedit">Sửa</button><button class="btn danger" id="cgo">Hủy</button></div>
   </div>
 </div>
 
@@ -117,6 +117,7 @@ h4{margin:12px 0 6px;font-size:14px}
 </main>
 <div id="toast"></div>
 <div id="modal"><div class="m"><p id="mtext"></p><div id="mcode"></div>
+  <div id="mpick" style="display:none;margin:0 0 6px"><select id="mdate"></select><select id="mslot"></select></div>
   <div id="mextra" style="display:none;margin:0 0 14px"><label id="mlabel" style="font-size:13px;color:var(--muted)"></label><select id="msize"></select></div>
   <div class="row" id="mbtns" style="justify-content:flex-end"></div></div></div>
 
@@ -143,7 +144,8 @@ $('name').value = me.name; $('card').value = me.card; $('qcard').value = me.card
 
 let tt; function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => e.style.display = 'none', 3500); }
 // Hộp thoại: text, danh sách nút [{label, cls, fn(size)}], size {max, val, label}, code (mã đặt chỗ)
-function modal(text, btns, size, code) {
+function modal(text, btns, size, code, pick) {
+  $('mpick').style.display = pick ? 'block' : 'none';
   $('mtext').textContent = text;
   $('mcode').style.display = code ? 'block' : 'none'; $('mcode').textContent = code || '';
   const ms = $('msize'); ms.textContent = '';
@@ -198,10 +200,27 @@ function reg(k, s, left) {
     modal('Đăng ký thành công ✔\n' + when(k, s) + ' · ' + size + ' người\nLưu lại mã đặt chỗ để hủy/sửa khi cần:', [{ label: 'Đã lưu' }], null, showCode(r.code));
   }) }], { max: left, val: first ? Math.min(MIN_PLAY, left) : 1, label: 'Số người đăng ký (tính cả bạn) · còn ' + left + ' chỗ' });
 }
-function edit(k, s, r, left) {
-  modal('Sửa số người ' + when(k, s) + '. Mã của bạn: ' + showCode(codes[k + '_' + s.id] || '?'), [close, { label: 'Lưu', fn: size => act(async () => {
-    await api('resize', { date: k, slot: s.id, code: codes[k + '_' + s.id], size });
-  }, 'Đã cập nhật') }], { max: r.size + left, val: r.size, label: 'Số người (tính cả bạn)' });
+function edit(k, s, r) { openEdit(codes[k + '_' + s.id], k, s.id, r.size); }
+function openEdit(code, k, sid, size) {
+  if (!S || !code) return;
+  const ds = $('mdate'), ss = $('mslot'); ds.textContent = ss.textContent = '';
+  const [y, m, d0] = S.today.split('-').map(Number);
+  for (let i = 0; i < 20; i++) {
+    const dt = new Date(y, m - 1, d0 + i); if (dt.getDay() === 0) continue;
+    const kk = ymd(dt); if (kk > S.last) break;
+    if (S.blocks.some(b => kk >= b.from && kk <= b.to)) continue;
+    const o = el('option', '', DOW[dt.getDay()] + ' ' + fmt(kk)); o.value = kk; ds.append(o);
+  }
+  if (![...ds.options].some(o => o.value === k)) { const o = el('option', '', DOW[dowOf(k)] + ' ' + fmt(k)); o.value = k; ds.prepend(o); }
+  SLOTS.forEach(s => { const o = el('option', '', s.label + ' (' + s.time + ')'); o.value = s.id; ss.append(o); });
+  ds.value = k; ss.value = sid;
+  modal('Sửa lượt đăng ký, mã ' + showCode(code) + '. Đổi ngày, khung giờ hoặc số người:', [close, { label: 'Lưu', fn: n => act(async () => {
+    const nd = ds.value, ns = ss.value, r = await api('edit', { code, date: nd, slot: ns, size: n });
+    Object.keys(codes).forEach(x => { if (normCode(codes[x]) === code) delete codes[x]; });
+    codes[nd + '_' + ns] = r.code; store('pb_codes', codes);
+    const sl = SLOTS.find(x => x.id === ns);
+    modal('Đã cập nhật ✔\n' + when(nd, sl) + ' · ' + n + ' người\nMã đặt chỗ' + (r.code === code ? ':' : ' MỚI (mã cũ không dùng được nữa):'), [{ label: 'Đã lưu' }], null, showCode(r.code));
+  }) }], { max: MAX, val: size, label: 'Số người (tính cả bạn)' }, null, true);
 }
 function cancelMine(k, s) {
   modal('Hủy lượt đăng ký của bạn ' + when(k, s) + '?', [close, { label: 'Hủy đăng ký', cls: 'danger', fn: () => act(async () => {
@@ -241,7 +260,7 @@ function render() {
         p.append(el('span', 'pi', r.name + ' · ' + r.card + ' · ' + r.size + ' người' + (r.mine ? ' (bạn)' : '')));
         if (!past) {
           const a = el('span', 'acts');
-          if (r.mine) a.append(mini('Sửa', () => edit(k, s, r, left)), mini('Hủy', () => cancelMine(k, s), 1));
+          if (r.mine) a.append(mini('Sửa', () => edit(k, s, r)), mini('Hủy', () => cancelMine(k, s), 1));
           else if (adm) a.append(mini('Hủy', () => cancelAdmin(k, s, r), 1));
           p.append(a);
         }
@@ -309,6 +328,10 @@ $('qgo').onclick = async () => {
       box.append(el('div', 'brow', 'Tuần từ ' + fmt(w) + ' · ' + s.label + ': ' + r.used[key] + '/' + r.per + ' ngày'));
     });
   } catch (e) { toast(e.message); }
+};
+$('cedit').onclick = async () => {
+  const code = normCode($('ccode').value); if (code.length < 4) { toast('Nhập mã đặt chỗ'); return; }
+  try { const r = await api('peek', { code }); openEdit(code, r.date, r.slot, r.size); } catch (e) { toast(e.message); }
 };
 $('cgo').onclick = () => {
   const code = normCode($('ccode').value); if (code.length < 4) { toast('Nhập mã đặt chỗ'); return; }
