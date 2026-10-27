@@ -3,29 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Đặt sân Pickleball</title>
+<title>TDV - Đặt sân Pickleball</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏓</text></svg>">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--text:#1a1d21;--muted:#6b7280;--line:#e3e6ea;--ok:#e6f6ec;--okb:#2e9d57;--warn:#fff4d6;--warnb:#d19a00;--bad:#fde8e8;--badb:#d93636;--me:#e5efff;--meb:#2f6fe0;--off:#eceef1;--blk:#efe7fb;--blkb:#8a5cd6;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1d2026;--text:#eceef1;--muted:#98a0ab;--line:#2d3138;--ok:#16301f;--okb:#3fbf72;--warn:#3a3112;--warnb:#e0b52e;--bad:#3a1c1c;--badb:#ef5b5b;--me:#17294d;--meb:#6a9bff;--off:#262a31;--blk:#2a2142;--blkb:#a98af0;color-scheme:dark}}
+:root{--bg:#f6f7f9;--card:#fff;--text:#1a1d21;--muted:#6b7280;--line:#e3e6ea;--ok:#e6f6ec;--okb:#2e9d57;--warn:#fff4d6;--warnb:#d19a00;--bad:#fde8e8;--badb:#d93636;--me:#e5efff;--meb:#2f6fe0;--off:#eceef1;--blk:#efe7fb;--blkb:#8a5cd6;--pri:#0f7a56;--acc:#d4ec3a;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1d2026;--text:#eceef1;--muted:#98a0ab;--line:#2d3138;--ok:#16301f;--okb:#3fbf72;--warn:#3a3112;--warnb:#e0b52e;--bad:#3a1c1c;--badb:#ef5b5b;--me:#17294d;--meb:#6a9bff;--off:#262a31;--blk:#2a2142;--blkb:#a98af0;--pri:#1a9a70;--acc:#d4ec3a;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0)}
+body{margin:0;background:radial-gradient(var(--line) 1.3px,transparent 1.4px) 0 0/22px 22px,var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0)}
 main{max-width:760px;margin:0 auto;padding:16px}
 h1{font-size:22px;margin:4px 0 2px}
+.hero{position:relative;display:flex;align-items:center;gap:14px;padding:18px 16px;margin-bottom:14px;border-radius:16px;color:#fff;overflow:hidden;background:linear-gradient(135deg,#0a5a44,#13845f)}
+.hero::before{content:"";position:absolute;inset:8px;border:2px solid rgba(255,255,255,.35);border-radius:10px;pointer-events:none}
+.hero::after{content:"";position:absolute;top:8px;bottom:8px;left:50%;width:2px;background:rgba(255,255,255,.14);pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.hero .ball{width:54px;height:54px;flex:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));animation:bounce 2.2s ease-in-out infinite}
+.hero .paddle{width:46px;height:58px;flex:none;margin-left:auto;transform:rotate(18deg);filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+.hero h1{font-size:21px;margin:0;line-height:1.2}
+.hero p{margin:3px 0 0;font-size:13px;opacity:.92}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media (prefers-reduced-motion:reduce){.hero .ball{animation:none}}
 .sub{color:var(--muted);margin:0 0 14px;font-size:13px}
 .box,.day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 input,select{flex:1;min-width:130px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}
 select{width:100%;margin-top:6px}
 button{font:inherit;cursor:pointer}
-.btn{padding:9px 14px;border-radius:8px;border:0;background:var(--meb);color:#fff;font-weight:600}
+.btn{padding:9px 14px;border-radius:8px;border:0;background:var(--pri);color:#fff;font-weight:600}
 .btn.ghost{background:var(--off);color:var(--text)}
 .btn.danger{background:var(--badb);color:#fff}
+.idrow{flex-wrap:nowrap}.idrow input{min-width:0;padding:8px}.idrow #name{flex:1.5}.idrow .btn{flex:none;white-space:nowrap;padding:8px 12px}
 .rules{font-size:13px;color:var(--muted);margin:10px 0 0;padding-left:18px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:12px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1.5px solid}
+.day{border-left:4px solid var(--acc)}.day.today{border-left-color:var(--pri)}
 .day h3{margin:0 0 8px;font-size:15px}.day h3 span{color:var(--muted);font-weight:400;font-size:13px}
 .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 @media (max-width:560px){.slots{grid-template-columns:1fr}}
+.slots.s4{grid-template-columns:repeat(2,1fr)}@media (max-width:560px){.slots.s4{grid-template-columns:1fr}}
 .slot{border:1.5px solid;border-radius:10px;padding:9px 10px;text-align:left;min-height:68px;color:var(--text)}
 .slot>b{display:block;font-size:13px}.slot>small{display:block;color:var(--muted);font-size:12px}
 .slot .who{margin-top:3px;font-size:13px;font-weight:600;overflow-wrap:anywhere}
@@ -51,24 +65,29 @@ h4{margin:12px 0 6px;font-size:14px}
 #qres{max-height:220px;overflow:auto;margin-top:6px;font-size:13px}#qres .brow{font-size:13px;padding:4px 0}#qres h4{margin:8px 0 2px;font-size:13px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}.duo .box{margin-bottom:12px}
 @media (max-width:560px){.duo{grid-template-columns:1fr;gap:0}}
+#mfoot{display:none;font-size:13px;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:var(--ok);border:1px solid var(--okb)}
 #mcode{display:none;font:700 28px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;text-align:center;background:var(--me);border:1.5px solid var(--meb);border-radius:10px;padding:12px;margin:0 0 14px;user-select:all}
 </style>
 </head>
 <body>
 <main>
-<h1>🏓 Đặt sân Pickleball</h1>
+<header class="hero">
+  <svg class="ball" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#d4ec3a" stroke="#a8bd12" stroke-width="3"/><g fill="#8fa30e" opacity=".75"><circle cx="32" cy="14" r="3.2"/><circle cx="18" cy="22" r="3.2"/><circle cx="46" cy="22" r="3.2"/><circle cx="12" cy="36" r="3.2"/><circle cx="52" cy="36" r="3.2"/><circle cx="24" cy="32" r="3.2"/><circle cx="40" cy="32" r="3.2"/><circle cx="32" cy="46" r="3.2"/><circle cx="20" cy="48" r="3.2"/><circle cx="44" cy="48" r="3.2"/></g></svg>
+  <div><h1>TDV - Đặt sân Pickleball</h1><p>Đặt sân liền tay - Vui khỏe mỗi ngày</p></div>
+  <svg class="paddle" viewBox="0 0 64 80" aria-hidden="true"><rect x="28" y="52" width="8" height="24" rx="3" fill="#8a5a2b"/><rect x="8" y="2" width="48" height="54" rx="24" fill="#ff8a3d" stroke="#fff" stroke-width="3"/><circle cx="32" cy="28" r="12" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/></svg>
+</header>
 <p class="sub">Bấm vào ô trống để đặt sân, hoặc bấm “Thêm người” ở ô vàng để đăng ký thêm.</p>
 <div id="conn"></div>
 <div id="notice"></div>
 
 <div class="box">
-  <div class="row">
+  <div class="row idrow">
     <input id="name" placeholder="Họ và tên" autocomplete="name">
-    <input id="card" placeholder="Số thẻ nhân viên">
-    <button class="btn" id="save">Lưu</button>
+    <input id="card" placeholder="Số thẻ NV">
+    <button class="btn" id="save">Xác nhận</button>
   </div>
   <ul class="rules">
-    <li>Mở đăng ký thứ Hai – thứ Bảy (không có Chủ nhật), luôn mở 2 tuần. 0:00 Chủ nhật mở thêm tuần kế tiếp.</li>
+    <li>Mở đăng ký từ thứ Hai đến thứ Bảy, luôn mở 2 tuần. Thứ Bảy có thêm khung giờ 13h00 – 16h30.</li>
     <li>Cùng 1 khung giờ, tối đa 3 ngày/tuần (tuần tính từ thứ Hai).</li>
     <li>Cần 4 người để chơi, tối đa 8 người/khung. Khung vàng (chưa đủ 8) ai cũng đăng ký thêm được, một lần nhiều người cũng được cho tới khi đủ 8.</li>
     <li>Mỗi lượt đăng ký có 1 mã đặt chỗ, dùng để hủy/sửa trước giờ bắt đầu. Mỗi người chỉ hủy phần của mình. Quên mã thì nhờ admin.</li>
@@ -110,14 +129,15 @@ h4{margin:12px 0 6px;font-size:14px}
   <span><i style="background:var(--ok);border-color:var(--okb)"></i>Trống</span>
   <span><i style="background:var(--warn);border-color:var(--warnb)"></i>Đã có người, chưa đủ 8</span>
   <span><i style="background:var(--bad);border-color:var(--badb)"></i>Đủ 8 người</span>
-  <span><i style="background:var(--me);border-color:var(--meb)"></i>Có bạn</span>
+  <span><i style="background:var(--me);border-color:var(--meb)"></i>Của bạn</span>
   <span><i style="background:var(--off);border-color:var(--line)"></i>Đã qua</span>
   <span><i style="background:var(--blk);border-color:var(--blkb)"></i>Giải đấu</span>
 </div>
 <div id="days"><p class="sub">Đang tải...</p></div>
+<p class="sub" style="text-align:center;margin:18px 0 6px">🏓 TDV · Tuân thủ quy định công ty · Vui chơi lành mạnh</p>
 </main>
 <div id="toast"></div>
-<div id="modal"><div class="m"><p id="mtext"></p><div id="mcode"></div>
+<div id="modal"><div class="m"><p id="mtext"></p><div id="mcode"></div><div id="mfoot"></div>
   <div id="mpick" style="display:none;margin:0 0 6px"><select id="mdate"></select><select id="mslot"></select></div>
   <div id="mextra" style="display:none;margin:0 0 14px"><label id="mlabel" style="font-size:13px;color:var(--muted)"></label><select id="msize"></select></div>
   <div class="row" id="mbtns" style="justify-content:flex-end"></div></div></div>
@@ -127,6 +147,7 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkK_ADxcVGvifptg-GV
 const MAX = 8, MIN_PLAY = 4;
 const SLOTS = [
   { id: 'sang',   label: 'Buổi sáng', time: '5h00 – 7h30',   t: '05:00' },
+  { id: 'trua',   label: 'Trưa thứ Bảy', time: '13h00 – 16h30', t: '13:00', sat: true },
   { id: 'chieu1', label: 'Chiều 1',   time: '16h30 – 18h30', t: '16:30' },
   { id: 'chieu2', label: 'Chiều 2',   time: '18h30 – 21h00', t: '18:30' }
 ];
@@ -145,7 +166,8 @@ $('name').value = me.name; $('card').value = me.card; $('qcard').value = me.card
 
 let tt; function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => e.style.display = 'none', 3500); }
 // Hộp thoại: text, danh sách nút [{label, cls, fn(size)}], size {max, val, label}, code (mã đặt chỗ)
-function modal(text, btns, size, code, pick) {
+function modal(text, btns, size, code, pick, foot) {
+  $('mfoot').style.display = foot ? 'block' : 'none'; $('mfoot').textContent = foot || '';
   $('mpick').style.display = pick ? 'block' : 'none';
   $('mtext').textContent = text;
   $('mcode').style.display = code ? 'block' : 'none'; $('mcode').textContent = code || '';
@@ -188,11 +210,12 @@ async function act(fn, ok) {
 }
 function ready() {
   if (me.name && me.card) return true;
-  toast('Nhập họ tên và số thẻ ở trên rồi bấm Lưu trước nhé'); scrollTo({ top: 0, behavior: 'smooth' }); return false;
+  toast('Nhập họ tên và số thẻ ở trên rồi bấm Xác nhận trước nhé'); scrollTo({ top: 0, behavior: 'smooth' }); return false;
 }
 const slotTxt = b => b.slots ? b.slots.split(',').map(id => (SLOTS.find(x => x.id === id) || {}).label).join(', ') : 'cả ngày';
 const blockOf = (k, sid) => S.blocks.find(b => k >= b.from && k <= b.to && (!b.slots || b.slots.split(',').indexOf(sid) >= 0));
 SLOTS.forEach(s => { const l = el('label'); l.style.cssText = 'display:flex;gap:5px;align-items:center'; const i = el('input'); i.type = 'checkbox'; i.value = s.id; i.checked = true; i.style.cssText = 'flex:none;min-width:0'; l.append(i, s.label + ' (' + s.time + ')'); $('bslots').append(l); });
+const REMIND = 'Lưu ý: Tuân thủ quy định của công ty, vui chơi lành mạnh, giữ gìn vệ sinh và an toàn trên sân. Chúc bạn và đồng đội có những trận pickleball thật vui! 🏓';
 const when = (k, s) => DOW[dowOf(k)] + ' ' + fmt(k) + ', ' + s.label + ' (' + s.time + ')';
 
 function reg(k, s, left) {
@@ -201,7 +224,7 @@ function reg(k, s, left) {
   modal((first ? 'Đặt sân ' : 'Thêm người vào ') + when(k, s) + '?', [close, { label: 'Xác nhận', fn: size => act(async () => {
     const r = await api('reg', { date: k, slot: s.id, name: me.name, card: me.card, size });
     codes[k + '_' + s.id] = r.code; store('pb_codes', codes);
-    modal('Đăng ký thành công ✔\n' + when(k, s) + ' · ' + size + ' người\nLưu lại mã đặt chỗ để hủy/sửa khi cần:', [{ label: 'Đã lưu' }], null, showCode(r.code));
+    modal('Đã đặt chỗ thành công ✔\n' + when(k, s) + ' · ' + size + ' người\nMã đặt chỗ của bạn (hãy lưu lại để sửa/hủy):', [{ label: 'Đã lưu' }], null, showCode(r.code), false, REMIND);
   }) }], { max: left, val: first ? Math.min(MIN_PLAY, left) : 1, label: 'Số người đăng ký (tính cả bạn) · còn ' + left + ' chỗ' });
 }
 function edit(k, s, r) { openEdit(codes[k + '_' + s.id], k, s.id, r.size); }
@@ -216,14 +239,16 @@ function openEdit(code, k, sid, size) {
     const o = el('option', '', DOW[dt.getDay()] + ' ' + fmt(kk)); o.value = kk; ds.append(o);
   }
   if (![...ds.options].some(o => o.value === k)) { const o = el('option', '', DOW[dowOf(k)] + ' ' + fmt(k)); o.value = k; ds.prepend(o); }
-  SLOTS.forEach(s => { const o = el('option', '', s.label + ' (' + s.time + ')'); o.value = s.id; ss.append(o); });
-  ds.value = k; ss.value = sid;
+  const fill = keep => { const sat = dowOf(ds.value) === 6, cur = keep || ss.value; ss.textContent = '';
+    SLOTS.filter(s => !s.sat || sat).forEach(s => { const o = el('option', '', s.label + ' (' + s.time + ')'); o.value = s.id; ss.append(o); });
+    ss.value = [...ss.options].some(o => o.value === cur) ? cur : ss.options[0].value; };
+  ds.value = k; fill(sid); ds.onchange = () => fill();
   modal('Sửa lượt đăng ký, mã ' + showCode(code) + '. Đổi ngày, khung giờ hoặc số người:', [close, { label: 'Lưu', fn: n => act(async () => {
     const nd = ds.value, ns = ss.value, r = await api('edit', { code, date: nd, slot: ns, size: n });
     Object.keys(codes).forEach(x => { if (normCode(codes[x]) === code) delete codes[x]; });
     codes[nd + '_' + ns] = r.code; store('pb_codes', codes);
     const sl = SLOTS.find(x => x.id === ns);
-    modal('Đã cập nhật ✔\n' + when(nd, sl) + ' · ' + n + ' người\nMã đặt chỗ' + (r.code === code ? ':' : ' MỚI (mã cũ không dùng được nữa):'), [{ label: 'Đã lưu' }], null, showCode(r.code));
+    modal('Đã cập nhật ✔\n' + when(nd, sl) + ' · ' + n + ' người\nMã đặt chỗ' + (r.code === code ? ':' : ' MỚI (mã cũ không dùng được nữa):'), [{ label: 'Đã lưu' }], null, showCode(r.code), false, REMIND);
   }) }], { max: MAX, val: size, label: 'Số người (tính cả bạn)' }, null, true);
 }
 function cancelMine(k, s) {
@@ -248,11 +273,11 @@ function render() {
     const dt = new Date(y, m - 1, d0 + i);
     if (dt.getDay() === 0) continue;
     const k = ymd(dt); if (k > S.last) break;
-    const day = el('div', 'day'), h = el('h3');
+    const day = el('div', 'day' + (i === 0 ? ' today' : '')), h = el('h3');
     h.append((i === -1 ? 'Hôm qua · ' : i === 0 ? 'Hôm nay · ' : i === 1 ? 'Ngày mai · ' : '') + DOW[dt.getDay()] + ' ', el('span', '', fmt(k)));
     day.append(h);
-    const g = el('div', 'slots');
-    SLOTS.forEach(s => {
+    const isSat = dt.getDay() === 6, g = el('div', 'slots' + (isSat ? ' s4' : ''));
+    SLOTS.filter(s => !s.sat || isSat).forEach(s => {
       const list = S.bookings[k + '_' + s.id] || [], n = list.reduce((a, r) => a + r.size, 0), left = MAX - n;
       const past = (k + 'T' + s.t) <= S.now, hasMine = list.some(r => r.mine), c = el('div', 'slot');
       c.append(el('b', '', s.label), el('small', '', s.time));
